@@ -1,0 +1,28 @@
+{
+  "name": "spikes",
+  "width": 16,
+  "height": 16,
+  "fps": {},
+  "animations": {
+    "default": [
+      [
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "...kk......kk...",
+        "..kwsk....kwsk..",
+        "..kwsk....kwsk..",
+        ".kwssmk..kwssmk.",
+        ".kwssmk..kwssmk.",
+        "kwsssmmkkwsssmmk",
+        "kwsssmmkkwsssmmk",
+        "kkkkkkkkkkkkkkkk"
+      ]
+    ]
+  }
+}

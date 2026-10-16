@@ -1,0 +1,28 @@
+{
+  "name": "ground",
+  "width": 16,
+  "height": 16,
+  "fps": {},
+  "animations": {
+    "default": [
+      [
+        "uuuuuuuuuuuuuuuu",
+        "uuueuuuuuuuuhuuu",
+        "uuuuuuuuuuuuuuuu",
+        "uhuuuuuueuuuuuuu",
+        "uuuuuuuuuuuuuueu",
+        "uuuuueuuuuuuuuuu",
+        "uuuuuuuuuhuuuuuu",
+        "ueuuuuuuuuuuuuuu",
+        "uuuuuuuuuuuueuuu",
+        "uuuuhuuuuuuuuuuu",
+        "uuuuuuuuueuuuuuu",
+        "uuuuuuuuuuuuuuuu",
+        "uuueuuuuuuuuuuhu",
+        "uuuuuuuuuuuuuuuu",
+        "uuuuuuuhuuuueuuu",
+        "uuuuuuuuuuuuuuuu"
+      ]
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "jump-and-run",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Endloses Pixel-Art-Jump-and-Run im Browser",
+  "type": "module",
+  "scripts": {
+    "dev": "node tools/dev-server.mjs",
+    "check": "node tools/check-chunks.mjs"
+  }
+}

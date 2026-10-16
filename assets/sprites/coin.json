@@ -1,0 +1,50 @@
+{
+  "name": "coin",
+  "width": 8,
+  "height": 8,
+  "fps": {"spin": 8},
+  "animations": {
+    "spin": [
+      [
+        "..kkkk..",
+        ".kqyyqk.",
+        "kqyqqqqk",
+        "kqyqqqqk",
+        "kqyqqqqk",
+        "kqqqqqok",
+        ".kqqqok.",
+        "..kkkk.."
+      ],
+      [
+        "...kk...",
+        "..kqqk..",
+        ".kyqqok.",
+        ".kyqqok.",
+        ".kyqqok.",
+        ".kqqqok.",
+        "..kqok..",
+        "...kk..."
+      ],
+      [
+        "...kk...",
+        "...qk...",
+        "...qk...",
+        "...qk...",
+        "...qk...",
+        "...qk...",
+        "...qk...",
+        "...kk..."
+      ],
+      [
+        "...kk...",
+        "..kqqk..",
+        ".kyqqok.",
+        ".kyqqok.",
+        ".kyqqok.",
+        ".kqqqok.",
+        "..kqok..",
+        "...kk..."
+      ]
+    ]
+  }
+}

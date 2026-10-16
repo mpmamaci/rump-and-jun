@@ -1,7 +1,9 @@
 import { VIEW_WIDTH, VIEW_HEIGHT, STEP } from './config.js';
 import { Game } from './game.js';
 import { initInput } from './input.js';
-import { draw } from './renderer.js';
+import { draw } from './render/renderer.js';
+import { loadSprites } from './render/assets.js';
+import { loadFont } from './render/font.js';
 
 const canvas = document.getElementById('game');
 const frame = document.getElementById('game-frame');
@@ -9,6 +11,10 @@ canvas.width = VIEW_WIDTH;
 canvas.height = VIEW_HEIGHT;
 const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false;
+
+// Erst alle eigenen Assets laden, dann starten
+ctx.fillStyle = '#1a1c2c'; ctx.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
+await Promise.all([loadSprites(), loadFont()]);
 
 const game = new Game(VIEW_WIDTH, VIEW_HEIGHT);
 

@@ -1,0 +1,28 @@
+{
+  "name": "powerup-shield",
+  "width": 16,
+  "height": 16,
+  "fps": {},
+  "animations": {
+    "default": [
+      [
+        "................",
+        "................",
+        "...kkkkkkkkkk...",
+        "...kwccccccbk...",
+        "...kwccccccbk...",
+        "...kwccwwccbk...",
+        "...kwcwwwwcbk...",
+        "...kwccwwccbk...",
+        "...kwccccccbk...",
+        "....kwccccbk....",
+        "....kwccccbk....",
+        ".....kwccbk.....",
+        "......kcbk......",
+        ".......kk.......",
+        "................",
+        "................"
+      ]
+    ]
+  }
+}

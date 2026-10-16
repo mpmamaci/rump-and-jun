@@ -1,0 +1,18 @@
+{
+  "sprites": [
+    "brick",
+    "coin",
+    "crumble",
+    "flyer",
+    "ground",
+    "ground-top",
+    "jumper",
+    "lift",
+    "player",
+    "powerup-doublejump",
+    "powerup-shield",
+    "powerup-slowmo",
+    "spikes",
+    "walker"
+  ]
+}

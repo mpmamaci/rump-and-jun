@@ -1,0 +1,66 @@
+{
+  "name": "walker",
+  "width": 16,
+  "height": 16,
+  "fps": {"walk": 4},
+  "animations": {
+    "walk": [
+      [
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "......kkkk......",
+        "....kkiiiikk....",
+        "...kiiivvvvik...",
+        "..kivvvvvvvvvk..",
+        "..kvkwvvkwvvvk..",
+        ".kvvkwvvkwvvvvk.",
+        ".kvvvvvvvvvvvvk.",
+        ".kvvvvvvvvvvvvk.",
+        "..kvvvvvvvvvvk..",
+        "...kkkkkkkkkk...",
+        "................"
+      ],
+      [
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "....kkkkkk......",
+        "...kiiiiiikk....",
+        "..kiivvvvvvik...",
+        ".kvkwvvkwvvvvk..",
+        ".kvkwvvkwvvvvvk.",
+        "kvvvvvvvvvvvvvvk",
+        "kvvvvvvvvvvvvvvk",
+        ".kvvvvvvvvvvvvk.",
+        "..kkkkkkkkkkkk..",
+        "................"
+      ]
+    ],
+    "squished": [
+      [
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "..kkkkkkkkkkkk..",
+        ".kiiiiiiiiiiiik.",
+        "kvvkkvvvvkkvvvvk",
+        "kvvvvvvvvvvvvvvk",
+        ".kkkkkkkkkkkkkk."
+      ]
+    ]
+  }
+}
