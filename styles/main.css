@@ -29,18 +29,6 @@ body {
   padding: 24px 16px;
 }
 
-.logo {
-  margin: 0;
-  font-family: ui-monospace, 'SF Mono', Menlo, monospace;  /* Platzhalter bis zur eigenen Pixel-Schrift */
-  font-weight: 800;
-  font-size: clamp(22px, 5vw, 40px);
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--text);
-  text-shadow: 3px 3px 0 var(--accent);
-}
-.logo__amp { color: var(--gold); text-shadow: 3px 3px 0 #b8860b; }
-
 .game-frame {
   padding: 8px;
   background: var(--frame);
@@ -79,4 +67,63 @@ kbd {
   font-family: inherit;
   font-size: 12px;
   text-align: center;
+}
+
+/* ---------------- Touch-Steuerung ---------------- */
+html, body { touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+
+.game-frame { position: relative; }
+.touch-controls { display: none; }
+body.touch .touch-controls { display: block; }
+body.touch .controls { display: none; }
+
+.touch-pad {
+  position: absolute;
+  bottom: 16px;
+  display: flex;
+  gap: 10px;
+}
+.touch-pad--left { left: 16px; }
+.touch-pad--right { right: 16px; }
+
+.touch-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid #ffffff40;
+  background: #1a1c2c80;
+  color: #f4f4f4;
+  font-size: 22px;
+  line-height: 1;
+  touch-action: none;
+  cursor: pointer;
+  backdrop-filter: blur(2px);
+}
+/* Pause-Button nur während des Spiels */
+body:not([data-state="run"]):not([data-state="ready"]) .touch-btn--pause { display: none; }
+.touch-btn.pressed { background: #e84a5fc0; border-color: #fff; }
+.touch-btn--jump { width: 80px; height: 80px; font-size: 28px; }
+.touch-btn--pause {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 40px;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 800;
+  border-radius: 10px;
+}
+
+/* Kleine Handys im Querformat: alles Platz fürs Spiel */
+@media (max-height: 520px) {
+  .app { padding: 4px; gap: 0; }
+  .controls { display: none; }
+  .game-frame { padding: 0; border-radius: 0; box-shadow: none; background: none; }
+  canvas { border-radius: 0; }
+}
+
+/* Hochformat auf dem Handy: Hinweis zum Drehen */
+.rotate-hint { display: none; color: var(--muted); font-size: 14px; text-align: center; }
+@media (orientation: portrait) and (pointer: coarse) {
+  .rotate-hint { display: block; }
 }

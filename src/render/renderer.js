@@ -5,6 +5,7 @@ import { drawSprite } from './assets.js';
 import { drawText } from './font.js';
 import { POWERUP_INFO } from '../entities/powerup.js';
 import { DOUBLEJUMP_TIME, SLOWMO_TIME } from '../config.js';
+import { menuLayout, labelOf } from '../ui/menu.js';
 
 // Alle Positionen werden gerundet, damit nichts zwischen zwei Pixeln landet.
 const R = Math.round;
@@ -28,7 +29,7 @@ export function draw(ctx, game) {
   drawCoins(ctx, world.coins, time);
   drawPowerups(ctx, world.powerups, time);
   drawEnemies(ctx, world.enemies, time);
-  if (game.state !== 'dead') drawPlayer(ctx, world.player, time, game.effects);
+  if (game.state !== 'dead' && !game.inTitle) drawPlayer(ctx, world.player, time, game.effects);
   drawParticles(ctx, world.particles);
   drawPopups(ctx, game.popups);
   ctx.restore();
@@ -37,9 +38,18 @@ export function draw(ctx, game) {
     ctx.fillStyle = C.n; ctx.globalAlpha = 0.18; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1;
   }
 
+  if (game.inTitle) {
+    if (game.state === 'title') drawTitle(ctx, W, H, game, time);
+    if (game.state === 'settings') drawMenuScreen(ctx, W, H, game, 'EINSTELLUNGEN', time);
+    if (game.state === 'board') drawBoard(ctx, W, H, game, time);
+    return;
+  }
+
   drawDeathWall(ctx, H, time);
   drawHud(ctx, game, W);
   if (game.state === 'ready') drawReady(ctx, W, H, time);
+  if (game.state === 'paused') drawMenuScreen(ctx, W, H, game, 'PAUSE', time);
+  if (game.state === 'settings') drawMenuScreen(ctx, W, H, game, 'EINSTELLUNGEN', time);
   if (game.state === 'dead') drawDead(ctx, W, H, game);
   if (game.state === 'name') drawNameEntry(ctx, W, H, game, time);
   if (game.state === 'board') drawBoard(ctx, W, H, game, time);
@@ -294,8 +304,45 @@ function drawBoard(ctx, W, H, game, time) {
   drawText(ctx, 'RANGLISTE', W / 2, 16, { scale: 2, align: 'center', color: C.q, shadow: C.r });
   drawLeaderboard(ctx, W, game.leaderboard, game.boardRank, time, 42);
   if (game.boardTimer > 0.4 && Math.floor(time * 2) % 2 === 0) {
-    drawText(ctx, 'LEERTASTE: NOCHMAL!', W / 2, H - 18, { align: 'center', color: C.a });
+    drawText(ctx, game.boardFromTitle ? 'LEERTASTE: ZURÜCK' : 'LEERTASTE: NOCHMAL!', W / 2, H - 18, { align: 'center', color: C.a });
   }
+}
+
+// ---------------- Menüs ----------------
+function drawMenu(ctx, W, game, time) {
+  for (const { item, x, y, w, h } of menuLayout(game.menu, W)) {
+    const active = game.menu.items[game.menu.index] === item;
+    if (active) {
+      ctx.fillStyle = C.r; ctx.fillRect(R(x), R(y), w, h);
+      ctx.fillStyle = C.x; ctx.fillRect(R(x), R(y), w, 1);
+      const nudge = Math.floor(time * 4) % 2;
+      drawText(ctx, '→', R(x) + 6 + nudge, R(y) + 4, { color: C.y });
+    }
+    drawText(ctx, labelOf(item), W / 2, R(y) + 4, { align: 'center', color: active ? C.w : C.s, shadow: active ? C.p : null });
+  }
+}
+
+function drawMenuScreen(ctx, W, H, game, title, time) {
+  dim(ctx, W, H, 0.75);
+  drawText(ctx, title, W / 2, game.menu.top - 44, { scale: 3, align: 'center', color: C.q, shadow: C.r });
+  drawMenu(ctx, W, game, time);
+  drawText(ctx, '↑ ↓ WÄHLEN  ·  LEERTASTE OK  ·  ESC ZURÜCK', W / 2, H - 16, { align: 'center', color: C.m });
+}
+
+function drawTitle(ctx, W, H, game, time) {
+  ctx.fillStyle = C.k; ctx.globalAlpha = 0.45; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1;
+  // Logo mit leichtem Wippen
+  const bob = R(Math.sin(time * 2) * 2);
+  drawText(ctx, 'JUMP', W / 2 - 16, 36 + bob, { scale: 5, align: 'right', color: C.w, shadow: C.r });
+  drawText(ctx, '&', W / 2, 44 + bob, { scale: 3, align: 'center', color: C.q, shadow: C.o });
+  drawText(ctx, 'RUN', W / 2 + 16, 36 + bob, { scale: 5, color: C.w, shadow: C.r });
+  drawText(ctx, 'DAS ENDLOSE PIXEL-ABENTEUER', W / 2, 88, { align: 'center', color: C.a });
+  // kleiner Held, der vor dem Logo läuft
+  drawSprite(ctx, 'player', 'run', time, W / 2 - 8, 110);
+  drawText(ctx, 'REKORD ' + game.best, W / 2, 132, { align: 'center', color: C.y });
+
+  drawMenu(ctx, W, game, time);
+  drawText(ctx, '↑ ↓ WÄHLEN  ·  LEERTASTE / ANTIPPEN: OK', W / 2, H - 16, { align: 'center', color: C.s, shadow: C.k });
 }
 
 export function drawLeaderboard(ctx, W, entries, highlight, time, top) {

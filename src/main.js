@@ -6,6 +6,7 @@ import { loadSprites } from './render/assets.js';
 import { loadFont } from './render/font.js';
 import { unlockAudio, playSfx, startMusic, stopMusic, setSong, setTempo, audioSettings, setSound, setMusic } from './audio/audio.js';
 import { SONGS } from './data/music.js';
+import { initTouch } from './ui/touch.js';
 
 const canvas = document.getElementById('game');
 const frame = document.getElementById('game-frame');
@@ -21,19 +22,33 @@ await Promise.all([loadSprites(), loadFont()]);
 const game = new Game(VIEW_WIDTH, VIEW_HEIGHT);
 
 game.sound = playSfx;
+game.options = {
+  sound: () => audioSettings.sound, setSound,
+  music: () => audioSettings.music, setMusic,
+};
 
-initInput({
-  onKeyDown: (code, key, repeat) => {
-    unlockAudio();
-    if (game.handleKey(code, key, repeat)) return;
-    // M: Ton an/aus (Musik und Effekte)
-    if (code === 'KeyM' && !repeat) {
-      const on = !(audioSettings.sound || audioSettings.music);
-      setSound(on); setMusic(on);
-    }
-  },
-});
+function onKeyDown(code, key, repeat) {
+  unlockAudio();
+  if (game.handleKey(code, key, repeat)) return;
+  // M: Ton an/aus (Musik und Effekte)
+  if (code === 'KeyM' && !repeat) {
+    const on = !(audioSettings.sound || audioSettings.music);
+    setSound(on); setMusic(on);
+  }
+}
+initInput({ onKeyDown });
+initTouch(document, onKeyDown);
 addEventListener('pointerdown', unlockAudio);
+
+// Antippen/Klicken ins Spielbild – für Menüs
+canvas.addEventListener('pointerdown', e => {
+  const r = canvas.getBoundingClientRect();
+  game.handleTap((e.clientX - r.left) * VIEW_WIDTH / r.width, (e.clientY - r.top) * VIEW_HEIGHT / r.height);
+});
+
+// Tab gewechselt oder Fenster verlassen → automatisch Pause
+document.addEventListener('visibilitychange', () => { if (document.hidden) game.pause(); });
+addEventListener('blur', () => game.pause());
 
 // ============================================================
 //  MUSIK – läuft während des Spiels, Tempo wächst mit dem Scroll-Tempo
@@ -45,6 +60,10 @@ function updateMusic() {
     setTempo(bpm);
     setSong(game.zone % SONGS.length);
     startMusic(game.zone % SONGS.length);
+  } else if (game.inTitle) {
+    setTempo(100);
+    setSong(0);
+    startMusic(0);
   } else if (game.state !== 'ready') {
     stopMusic();
   }
@@ -57,12 +76,19 @@ window.game = game;
 //  SKALIERUNG – immer ein ganzzahliges Vielfaches, damit Pixel scharf bleiben
 // ============================================================
 function resize() {
-  const framePad = 16;  // Innenabstand des Rahmens (2 × 8px)
-  const availW = window.innerWidth - 32 - framePad;
-  const availH = window.innerHeight * 0.75 - framePad;
+  const app = document.querySelector('.app');
+  const px = (el, prop) => parseFloat(getComputedStyle(el)[prop]) || 0;
+  // Platz, den Tasten-Hinweise & Abstände brauchen (auf kleinen Handys ausgeblendet)
+  const others = [...app.children].filter(el => el !== frame && el.offsetParent)
+    .reduce((h, el) => h + el.offsetHeight + px(app, 'rowGap'), 0);
+  const availW = innerWidth - px(app, 'paddingLeft') - px(app, 'paddingRight') - px(frame, 'paddingLeft') - px(frame, 'paddingRight');
+  const availH = innerHeight - px(app, 'paddingTop') - px(app, 'paddingBottom') - px(frame, 'paddingTop') - px(frame, 'paddingBottom') - others;
   const fit = Math.min(availW / VIEW_WIDTH, availH / VIEW_HEIGHT);
-  // Ganzzahlig, wenn möglich; auf sehr kleinen Bildschirmen notfalls kleiner als 1×
-  const scale = fit >= 1 ? Math.floor(fit) : fit;
+  // Desktop: ganzzahlig in echten Gerätepixeln → perfekt scharfe Pixel.
+  // Touch-Geräte: ganze Fläche nutzen – auf kleinen Bildschirmen zählt die Größe mehr.
+  const dpr = devicePixelRatio || 1;
+  const touch = document.body.classList.contains('touch');
+  const scale = touch || fit * dpr < 1 ? fit : Math.floor(fit * dpr) / dpr;
   canvas.style.width = VIEW_WIDTH * scale + 'px';
   canvas.style.height = VIEW_HEIGHT * scale + 'px';
   frame.style.setProperty('--scale', scale);
@@ -84,6 +110,7 @@ function loop(now) {
     acc -= STEP;
   }
   updateMusic();
+  if (document.body.dataset.state !== game.state) document.body.dataset.state = game.state;  // für CSS (z. B. Pause-Button)
   draw(ctx, game);
   requestAnimationFrame(loop);
 }

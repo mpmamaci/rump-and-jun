@@ -2,24 +2,37 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#12141f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <title>Jump and Run</title>
   <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
   <main class="app">
-    <header class="app__header">
-      <h1 class="logo">Jump <span class="logo__amp">&amp;</span> Run</h1>
-    </header>
-
     <div class="game-frame" id="game-frame">
       <canvas id="game" width="480" height="270"></canvas>
+
+      <!-- Touch-Steuerung: erscheint nur auf Geräten mit Touchscreen -->
+      <div class="touch-controls" aria-hidden="true">
+        <div class="touch-pad touch-pad--left">
+          <button class="touch-btn" data-key="ArrowLeft">◀</button>
+          <button class="touch-btn" data-key="ArrowRight">▶</button>
+        </div>
+        <div class="touch-pad touch-pad--right">
+          <button class="touch-btn touch-btn--jump" data-key="Space">▲</button>
+        </div>
+        <button class="touch-btn touch-btn--pause" data-key="Escape">II</button>
+      </div>
     </div>
+
+    <div class="rotate-hint">↻ Für die beste Ansicht das Handy ins Querformat drehen</div>
 
     <footer class="controls">
       <span class="controls__item"><kbd>←</kbd><kbd>→</kbd> laufen</span>
       <span class="controls__item"><kbd>Leertaste</kbd> springen <small>(halten = höher)</small></span>
-      <span class="controls__item"><kbd>R</kbd> Neustart</span>
+      <span class="controls__item"><kbd>Esc</kbd> Pause</span>
+      <span class="controls__item"><kbd>M</kbd> Ton</span>
     </footer>
   </main>
 
