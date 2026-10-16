@@ -36,6 +36,7 @@ export function draw(ctx, game) {
   ctx.restore();
   ctx.restore();
 
+  if (game.effects.rocket) drawSpeedLines(ctx, W, H, time);
   if (game.effects.slowmo > 0) {  // Zeitlupe: leichter Blaustich
     ctx.fillStyle = C.n; ctx.globalAlpha = 0.18; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1;
   }
@@ -152,6 +153,7 @@ function drawTiles(ctx, world, camX, W, time, biome) {
     if (t === '#') drawSprite(ctx, world.tileAt(c, r - 1) === '#' ? 'ground' : 'ground-top', 'default', 0, x, y, o);
     else if (t === '=') drawSprite(ctx, 'brick', 'default', 0, x, y, o);
     else if (t === '^') drawSprite(ctx, 'spikes', 'default', 0, x, y, o);
+    else if (t === '*') drawSprite(ctx, 'spring', world.springs.has(c + ',' + r) ? 'bounce' : 'idle', 0, x, y, o);
     else if (t === '~') {
       const shake = world.crumbling.has(c + ',' + r) ? R(Math.sin(time * 70)) : 0;
       drawSprite(ctx, 'crumble', 'default', 0, x + shake, y, o);
@@ -185,8 +187,24 @@ function drawEnemies(ctx, enemies, time) {
       drawSprite(ctx, 'jumper', anim, 0, cx, e.y + e.h - 14, e.alive ? {} : { h: 8 });
     } else if (e.type === 'flyer') {
       drawSprite(ctx, 'flyer', 'fly', e.t, cx, e.y + e.h / 2 - 8, e.alive ? {} : { h: 8 });
+    } else if (e.type === 'swooper') {
+      const anim = e.mode === 'dive' ? 'dive' : 'fly';
+      drawSprite(ctx, 'swooper', anim, e.t, cx, e.y + e.h / 2 - 8, e.alive ? { flip: e.vx > 0 } : { h: 8 });
     }
   }
+}
+
+// Raketenflug: Geschwindigkeitslinien quer übers Bild
+function drawSpeedLines(ctx, W, H, time) {
+  ctx.fillStyle = C.w;
+  for (let i = 0; i < 18; i++) {
+    const y = (i * 53 + 17) % H;
+    const len = 20 + (i * 31) % 50;
+    const x = W - ((time * (900 + (i % 5) * 200) + i * 97) % (W + len));
+    ctx.globalAlpha = 0.25 + (i % 3) * 0.15;
+    ctx.fillRect(R(x), y, len, 1);
+  }
+  ctx.globalAlpha = 1;
 }
 
 function drawPowerups(ctx, powerups, time) {
@@ -197,7 +215,7 @@ function drawPowerups(ctx, powerups, time) {
     // pulsierender Leuchtring
     const r = 9 + (Math.floor(time * 6) % 2);
     pixelCircle(ctx, cx, cy, r, POWERUP_INFO[pu.type].color, 0.7);
-    drawSprite(ctx, 'powerup-' + pu.type, 'default', 0, cx - 8, cy - 8);
+    drawSprite(ctx, 'powerup-' + pu.type, 'default', time, cx - 8, cy - 8);
   }
 }
 
@@ -222,6 +240,12 @@ function drawPopups(ctx, popups) {
 }
 
 function drawPlayer(ctx, p, time, effects) {
+  if (effects.rocket) {
+    // Auf der Rakete reiten: Rakete unter dem Spieler, Spieler im Sprung-Bild
+    drawSprite(ctx, 'powerup-rocket', 'default', time, p.x - 4, p.y + p.h - 9);
+    drawSprite(ctx, 'player', 'jump', time, p.x + p.w / 2 - 8, p.y + p.h - 16 - 6);
+    return;
+  }
   if (p.invul > 0 && Math.floor(time * 16) % 2) return;  // blinkt nach Schild-Treffer
   let anim = 'idle';
   if (!p.onGround) anim = p.vy < 0 ? 'jump' : 'fall';
@@ -272,10 +296,11 @@ function drawHud(ctx, game, W) {
     fx.doublejump > 0 && ['doublejump', fx.doublejump / DOUBLEJUMP_TIME],
     fx.shield && ['shield', 1],
     fx.slowmo > 0 && ['slowmo', fx.slowmo / SLOWMO_TIME],
+    fx.rocket && ['rocket', 1 - game.rocketProgress],
   ].filter(Boolean);
   for (const [type, left] of active) {
     panel(ctx, ix, 6, 20, 24);
-    drawSprite(ctx, 'powerup-' + type, 'default', 0, ix + 2, 6);
+    drawSprite(ctx, 'powerup-' + type, 'default', game.time, ix + 2, 6);
     ctx.fillStyle = POWERUP_INFO[type].color;
     ctx.fillRect(ix + 2, 26, Math.max(1, R(16 * left)), 2);
     ix += 24;

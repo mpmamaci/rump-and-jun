@@ -1,0 +1,46 @@
+{
+  "name": "powerup-rocket",
+  "width": 16,
+  "height": 16,
+  "fps": {"default":10},
+  "animations": {
+    "default": [
+      [
+        "................",
+        "................",
+        "..kk............",
+        "..kxk...........",
+        "..kxxkkkkkkkk...",
+        "kokkwwwwwwwwwkk.",
+        "yqokwwwwwccwwwak",
+        "yqokwwwwwccwwwak",
+        "kokkwwwwwwwwwkk.",
+        "..kxxkkkkkkkk...",
+        "..kxk...........",
+        "..kk............",
+        "................",
+        "................",
+        "................",
+        "................"
+      ],
+      [
+        "................",
+        "................",
+        "..kk............",
+        "..kxk...........",
+        "..kxxkkkkkkkk...",
+        "kokkwwwwwwwwwkk.",
+        "qyokwwwwwccwwwak",
+        "qyokwwwwwccwwwak",
+        "kokkwwwwwwwwwkk.",
+        "..kxxkkkkkkkk...",
+        "..kxk...........",
+        "..kk............",
+        "................",
+        "................",
+        "................",
+        "................"
+      ]
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "name": "spring",
+  "width": 16,
+  "height": 16,
+  "fps": {},
+  "animations": {
+    "idle": [
+      [
+        ".kkkkkkkkkkkkkk.",
+        "kxxxxxxxxxxxxxxk",
+        "krrrrrrrrrrrrrrk",
+        ".kkkkkkkkkkkkkk.",
+        "uuudkssssssskduu",
+        "uuudkmmmmmmmkduu",
+        "uuudkssssssskduu",
+        "uuudkmmmmmmmkduu",
+        "uuudkssssssskduu",
+        "uuudkmmmmmmmkduu",
+        "uuuuuuuuueuuuuuu",
+        "uuuuuuuuuuuuuuuu",
+        "uuueuuuuuuuuuuhu",
+        "uuuuuuuuuuuuuuuu",
+        "uuuuuuuhuuuueuuu",
+        "uuuuuuuuuuuuuuuu"
+      ]
+    ],
+    "bounce": [
+      [
+        "................",
+        "................",
+        "................",
+        ".kkkkkkkkkkkkkk.",
+        "kxxxxxxxxxxxxxxk",
+        "krrrrrrrrrrrrrrk",
+        ".kkkkkkkkkkkkkk.",
+        "uuudkssssssskduu",
+        "uuudkmmmmmmmkduu",
+        "uuudkssssssskduu",
+        "uuuuuuuuueuuuuuu",
+        "uuuuuuuuuuuuuuuu",
+        "uuueuuuuuuuuuuhu",
+        "uuuuuuuuuuuuuuuu",
+        "uuuuuuuhuuuueuuu",
+        "uuuuuuuuuuuuuuuu"
+      ]
+    ]
+  }
+}

@@ -77,6 +77,13 @@ const arp = (notes, step, opts) => notes.forEach((m, i) => tone({ freq: midiToFr
 // ---------------- Soundeffekte ----------------
 const SFX = {
   jump: () => tone({ freq: 280, to: 620, dur: 0.12, vol: 0.18 }),
+  walljump: () => { tone({ freq: 360, to: 760, dur: 0.1, vol: 0.16 }); noise({ dur: 0.05, vol: 0.12, filter: 2500 }); },
+  spring: () => { tone({ type: 'triangle', freq: 180, to: 900, dur: 0.28, vol: 0.3 }); tone({ freq: 440, to: 1300, dur: 0.2, vol: 0.08, at: 0.04 }); },
+  rocket: () => {
+    noise({ dur: 0.9, vol: 0.3, filter: 1400 });
+    tone({ type: 'sawtooth', freq: 110, to: 880, dur: 0.8, vol: 0.14 });
+    arp([72, 76, 79, 84, 88, 91], 0.06, { vol: 0.12 });
+  },
   doublejump: () => { tone({ freq: 520, to: 1100, dur: 0.12, vol: 0.16 }); tone({ type: 'triangle', freq: 780, to: 1500, dur: 0.15, vol: 0.12, at: 0.03 }); },
   coin: () => { tone({ freq: 988, dur: 0.06, vol: 0.15 }); tone({ freq: 1319, dur: 0.16, vol: 0.15, at: 0.06 }); },
   stomp: (combo = 1) => {

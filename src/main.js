@@ -99,7 +99,9 @@ addEventListener('blur', () => game.pause());
 function updateMusic() {
   if (game.state === 'run') {
     const k = (game.scrollSpeed - SCROLL_START) / (SCROLL_MAX - SCROLL_START);
-    const bpm = (112 + 48 * Math.max(0, k)) * game.tempo.speed * (game.effects.slowmo > 0 ? SLOWMO_FACTOR + 0.15 : 1);
+    const bpm = (112 + 48 * Math.max(0, k)) * game.tempo.speed
+      * (game.effects.slowmo > 0 ? SLOWMO_FACTOR + 0.15 : 1)
+      * (game.effects.rocket ? 1.3 : 1);  // Raketenflug: Musik zieht an
     setTempo(bpm);
     setSong(game.zone % SONGS.length);
     startMusic(game.zone % SONGS.length);

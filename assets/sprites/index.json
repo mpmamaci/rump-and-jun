@@ -10,9 +10,12 @@
     "lift",
     "player",
     "powerup-doublejump",
+    "powerup-rocket",
     "powerup-shield",
     "powerup-slowmo",
     "spikes",
+    "spring",
+    "swooper",
     "walker"
   ]
 }

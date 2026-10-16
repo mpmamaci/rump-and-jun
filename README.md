@@ -7,10 +7,11 @@ Die Strecke scrollt automatisch und wird immer schneller und schwerer. Wie weit 
 
 ## Features
 
-- Endlose Strecke aus 30 handgebauten Chunks in 5 Schwierigkeitsstufen
+- Endlose Strecke aus 37 handgebauten Chunks in 5 Schwierigkeitsstufen
 - Auto-Scroll mit steigendem Tempo, der linke Bildrand ist tödlich
-- 3 Gegnertypen (Läufer, Springer, Flieger), bewegte und bröckelnde Plattformen
-- Power-ups: Doppelsprung, Schild, Zeitlupe
+- 4 Gegnertypen (Läufer, Springer, Flieger, Sturzflieger), bewegte und bröckelnde Plattformen
+- Parkour: Wandsprung, Wandrutschen und Sprungfedern
+- Power-ups: Doppelsprung, Schild, Zeitlupe und die seltene **Rakete**, die dich unverwundbar über 500 m weit trägt
 - Punkte aus Metern, Münzen und Gegner-Kombos, dazu eine lokale Top-10-Rangliste
 - 4 Biome, die alle 500 m wechseln, jedes mit eigener Musik
 - Chiptune-Musik und Effekte live per Web-Audio-API, das Tempo wächst mit
@@ -68,7 +69,7 @@ Hinweis: Per Doppelklick auf `index.html` läuft das Spiel nicht. Browser laden 
 | Taste | Aktion |
 |---|---|
 | ← → / A D | laufen |
-| Leertaste / W / ↑ | springen (länger halten = höher) |
+| Leertaste / W / ↑ | springen (länger halten = höher), an einer Wand: Wandsprung |
 | Esc / P | Pause |
 | F | Vollbild |
 | R | Neustart |
@@ -147,7 +148,13 @@ Jedes Zeichen ist ein Block mit 16×16 Pixeln (1 Block = 1 Meter):
 | `=` | Plattform |
 | `^` | Stacheln |
 | `C` | Münze |
-| `E` | Gegner |
+| `E` | Läufer-Gegner |
+| `J` | Springer-Gegner |
+| `B` | Flieger |
+| `D` | Sturzflieger |
+| `*` | Sprungfeder (im Boden) |
+| `?` | Power-up-Platz |
+| `!` | Raketen-Platz (selten, nur an schwer erreichbaren Stellen, ab Stufe 2) |
 | `P` | Spieler-Start (nur im Start-Chunk) |
 
 Regeln: Die Karte wird unten ausgerichtet. Die erste und die letzte Spalte brauchen Boden in den untersten zwei Zeilen.

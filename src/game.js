@@ -1,9 +1,10 @@
 import {
   TILE, ROWS, JUMP_BUFFER, DEATH_PAUSE, GENERATE_AHEAD, POINTS_COIN, POINTS_STOMP,
   DOUBLEJUMP_TIME, SLOWMO_TIME, SLOWMO_FACTOR, HURT_INVUL, JUMP_SPEED, ZONE_METERS, TEMPO_LEVELS,
+  ROCKET_METERS, ROCKET_SPEED, MOVE_SPEED,
 } from './config.js';
 import { POWERUP_INFO } from './entities/powerup.js';
-import { createWorld, ensureGenerated, pruneBehind, updateCrumbling } from './world/world.js';
+import { createWorld, ensureGenerated, pruneBehind, updateCrumbling, updateSprings } from './world/world.js';
 import { scrollSpeedAt, tierAt } from './world/difficulty.js';
 import { randomSeed } from './core/random.js';
 import { moveAxis } from './input.js';
@@ -141,7 +142,7 @@ export class Game {
     this.stompPoints = 0;
     this.combo = 0;
     this.bestCombo = 0;
-    this.effects = { doublejump: 0, shield: false, slowmo: 0 };
+    this.effects = { doublejump: 0, shield: false, slowmo: 0, rocket: null };
     this.popups = [];   // kurze Texte in der Welt, z. B. "SCHILD!"
     this.shake = 0;      // Bildschirmwackeln in Pixeln
     this.lastZone = 0;
@@ -286,20 +287,28 @@ export class Game {
     }
 
     for (const pl of w.platforms) updatePlatform(pl, wdt);
-    updatePlayer(p, this, dt);
+    if (this.effects.rocket) this.updateRocket(dt);
+    else updatePlayer(p, this, dt);
+    updateSprings(w, dt);
     for (const e of w.enemies) updateEnemy(e, this, wdt);
     if (p.onGround) this.combo = 0;  // Kombo endet, sobald man wieder Boden berührt
     updateCrumbling(w, dt, (c, r) => { puff(w.particles, c * TILE + 8, r * TILE + 8, 8, '#a0703a'); this.sound('crumble'); });
     if (this.state === 'dead') return;
 
     // --- Rechter Bildrand ist eine Wand, linker Bildrand ist tödlich
-    const right = this.camX + this.viewWidth - p.w;
-    if (p.x > right) { p.x = right; p.vx = Math.min(p.vx, 0); }
-    if (p.x < this.camX) return this.die();
+    //     (mit der Rakete fährt stattdessen die Kamera mit)
+    if (this.effects.rocket) {
+      this.camX = Math.max(this.camX, p.x - this.viewWidth * 0.3);
+    } else {
+      const right = this.camX + this.viewWidth - p.w;
+      if (p.x > right) { p.x = right; p.vx = Math.min(p.vx, 0); }
+      if (p.x < this.camX) return this.die();
+    }
 
-    // --- Münzen
+    // --- Münzen (die Rakete saugt Münzen in der Nähe ein)
+    const magnet = c => this.effects.rocket && Math.abs(c.x - p.x) < 24 && Math.abs(c.y - p.y) < 90;
     for (const c of w.coins) {
-      if (!c.taken && overlap(p, c)) {
+      if (!c.taken && (overlap(p, c) || magnet(c))) {
         c.taken = true; this.coins++;
         this.sound('coin');
         puff(w.particles, c.x + c.w / 2, c.y + c.h / 2, 8, '#ffd23f');
@@ -342,15 +351,73 @@ export class Game {
       this.combo > 1 ? '#ffcd75' : '#f4f4f4');
   }
 
-  onJump(double) { this.sound(double ? 'doublejump' : 'jump'); }
+  onJump(kind) { this.sound(kind === 'wall' ? 'walljump' : kind ? 'doublejump' : 'jump'); }
+
+  onSpring() { this.sound('spring'); this.addShake(1); }
+
+  // Beim ersten Wandkontakt erklären, wie der Wandsprung geht
+  onWallTouch() {
+    if (this.wallHintShown) return;
+    this.wallHintShown = true;
+    const p = this.world.player;
+    this.popup('AN DER WAND: SPRINGEN = WANDSPRUNG!', p.x + p.w / 2, p.y - 14, '#73eff7');
+  }
+
+  // ---------------- Rakete ----------------
+  startRocket() {
+    const p = this.world.player;
+    this.effects.rocket = { t: 0, startX: p.x, targetX: p.x + ROCKET_METERS * TILE };
+    // Nach der Flugstrecke eine flache, gegnerfreie Landezone einbauen
+    this.world.landingAt = Math.floor(p.x / TILE) + ROCKET_METERS;
+    this.world.landingStart = null;
+    this.addShake(4);
+  }
+
+  updateRocket(dt) {
+    const w = this.world, p = w.player, r = this.effects.rocket;
+    r.t += dt;
+    p.vx = ROCKET_SPEED; p.vy = 0;
+    p.x += ROCKET_SPEED * dt;
+    // Flughöhe: weit oben, über allen Hindernissen, leicht wippend
+    const cruiseY = 2 * TILE + 4 + Math.sin(r.t * 6) * 3;
+    p.y += (cruiseY - p.y) * Math.min(1, 5 * dt);
+    p.onGround = false; p.riding = null; p.facing = 1;
+    puff(w.particles, p.x - 4, p.y + p.h / 2 + 3, 2, Math.random() < 0.5 ? '#ef7d57' : '#ffcd75');
+    if (w.landingStart !== null && p.x >= (w.landingStart + 6) * TILE) this.endRocket();
+  }
+
+  endRocket() {
+    const w = this.world, p = w.player;
+    this.effects.rocket = null;
+    p.x = (w.landingStart + 6) * TILE;
+    p.y = (w.rows - 2) * TILE - p.h - 40;   // sanft auf die Landezone fallen lassen
+    p.vy = 0; p.vx = MOVE_SPEED * 0.6;
+    p.invul = HURT_INVUL; p.airJumpUsed = false;
+    w.landingStart = null;
+    this.popup('LANDUNG!', p.x + p.w / 2, p.y - 8, '#ffcd75');
+    this.addShake(3);
+  }
+
+  get rocketProgress() {
+    const r = this.effects.rocket;
+    if (!r) return 0;
+    return Math.min(1, (this.world.player.x - r.startX) / (r.targetX - r.startX));
+  }
+
+  rocketHit(e) {
+    this.stompPoints += POINTS_STOMP;
+    this.popup('+' + POINTS_STOMP, e.x + e.w / 2, e.y - 6);
+    this.sound('stomp', 1);
+  }
 
   collectPowerup(pu) {
     const info = POWERUP_INFO[pu.type];
     if (pu.type === 'doublejump') this.effects.doublejump = DOUBLEJUMP_TIME;
     if (pu.type === 'shield') this.effects.shield = true;
     if (pu.type === 'slowmo') this.effects.slowmo = SLOWMO_TIME;
+    if (pu.type === 'rocket') this.startRocket();
     puff(this.world.particles, pu.x + pu.w / 2, pu.y + pu.h / 2, 14, info.color);
-    this.sound('powerup');
+    this.sound(pu.type === 'rocket' ? 'rocket' : 'powerup');
     this.popup(info.label, pu.x + pu.w / 2, pu.y - 4, info.color);
   }
 
@@ -361,7 +428,7 @@ export class Game {
   // Treffer durch Gegner oder Stacheln – das Schild fängt genau einen ab
   hurt() {
     const p = this.world.player;
-    if (p.invul > 0 || this.state === 'dead') return;
+    if (p.invul > 0 || this.state === 'dead' || this.effects.rocket) return;  // Rakete = unverwundbar
     if (this.effects.shield) {
       this.effects.shield = false;
       p.invul = HURT_INVUL;
@@ -376,7 +443,7 @@ export class Game {
   }
 
   die() {
-    if (this.state === 'dead') return;
+    if (this.state === 'dead' || this.effects.rocket) return;
     const p = this.world.player;
     puff(this.world.particles, p.x + p.w / 2, p.y + p.h / 2, 16, '#e84a5f');
     this.state = 'dead';

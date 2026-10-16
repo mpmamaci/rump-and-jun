@@ -1,13 +1,13 @@
 // Prüft alle Chunks auf typische Fehler.
 // Aufruf:  node tools/check-chunks.mjs
-import { START_CHUNK, CHUNKS } from '../src/data/chunks.js';
+import { START_CHUNK, LANDING_CHUNK, CHUNKS } from '../src/data/chunks.js';
 
-const VALID = new Set([...' #=~^CEJBMVP?']);
+const VALID = new Set([...' #=~^*CEJBDMVP?!']);
 let errors = 0;
 const fail = (chunk, msg) => { errors++; console.error(`✗ ${chunk.name}: ${msg}`); };
 
 const names = new Set();
-for (const chunk of [START_CHUNK, ...CHUNKS]) {
+for (const chunk of [START_CHUNK, LANDING_CHUNK, ...CHUNKS]) {
   const { map } = chunk;
   if (names.has(chunk.name)) fail(chunk, 'Name doppelt');
   names.add(chunk.name);
@@ -22,7 +22,9 @@ for (const chunk of [START_CHUNK, ...CHUNKS]) {
     if (map[li][last] !== '#') fail(chunk, `letzte Spalte hat keinen Boden (Zeile ${li + 1}, Breite ${width})`);
   }
   if (chunk !== START_CHUNK && map.some(l => l.includes('P'))) fail(chunk, 'P nur im Start-Chunk erlaubt');
-  if (chunk !== START_CHUNK && !(chunk.difficulty >= 1 && chunk.difficulty <= 5)) fail(chunk, 'difficulty muss 1–5 sein');
+  const special = chunk === START_CHUNK || chunk === LANDING_CHUNK;
+  if (!special && !(chunk.difficulty >= 1 && chunk.difficulty <= 5)) fail(chunk, 'difficulty muss 1–5 sein');
+  if (map.some(l => l.includes('!')) && chunk.difficulty < 2) fail(chunk, 'Raketen (!) erst ab Stufe 2 – sie sollen schwer zu bekommen sein');
 }
 
 const perTier = [1, 2, 3, 4, 5].map(t => CHUNKS.filter(c => c.difficulty === t).length);

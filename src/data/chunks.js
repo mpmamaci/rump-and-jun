@@ -4,6 +4,9 @@
 //   #  Boden            =  Plattform        ~  Bröckel-Plattform
 //   ^  Stacheln         C  Münze            ?  Power-up (Kandidat)
 //   E  Läufer-Gegner    J  Springer-Gegner  B  Flieger-Gegner
+//   D  Sturzflieger (stürzt sich auf den Spieler)
+//   *  Sprungfeder (im Boden, schleudert ca. 9 Blöcke hoch)
+//   !  Rakete (sehr selten – nur an schwer erreichbaren Stellen verwenden!)
 //   M  bewegte Plattform (waagerecht, 3 breit)
 //   V  bewegte Plattform (senkrecht, 3 breit)
 //   P  Spieler-Start (nur im Start-Chunk)
@@ -12,6 +15,7 @@
 //   - Die Karte wird unten an der Welt ausgerichtet (unterste Zeile = Weltboden)
 //   - Erste und letzte Spalte haben Boden in den untersten zwei Zeilen
 //   - Sprung: ca. 3 Blöcke hoch, ca. 5 Blöcke weit
+//   - Wandsprung: zwischen zwei Wänden mit 3 Blöcken Abstand kommt man beliebig hoch
 //   - difficulty 1–5: ab welcher Stufe der Chunk vorkommen darf
 //
 //  Prüfen mit:  node tools/check-chunks.mjs
@@ -25,6 +29,20 @@ export const START_CHUNK = {
     "",
     "",
     "    P",
+    "##############################",
+    "##############################",
+  ],
+};
+
+// Sichere Landezone nach dem Raketenflug – flach, ohne Gegner
+export const LANDING_CHUNK = {
+  name: 'landung',
+  difficulty: 0,
+  map: [
+    "",
+    "      C C C C C C",
+    "",
+    "",
     "##############################",
     "##############################",
   ],
@@ -185,7 +203,7 @@ export const CHUNKS = [
       "",
       "",
       "        B",
-      "              B",
+      "              D",
       "",
       "   CCC     CCC",
       "########################",
@@ -412,6 +430,117 @@ export const CHUNKS = [
       "",
       "####^^^^^^^^^^^^^^^^^####",
       "#########################",
+    ],
+  },
+
+  // ---------------- Parkour & Luftkampf (Feedback-Runde) ----------------
+  {
+    // Zu hohe Wand: nur per Wandsprung im Spalt links davon zu schaffen
+    name: 'wandsprung', difficulty: 2,
+    map: [
+      "",
+      "             CCCC",
+      "        #   #######",
+      "        #   #######",
+      "        #   #######",
+      "        #   #######",
+      "            #######",
+      "            #######",
+      "########################",
+      "########################",
+    ],
+  },
+  {
+    // Sprungfeder im Boden schleudert auf die hohe Plattform über dem Abgrund
+    name: 'sprungfeder', difficulty: 2,
+    map: [
+      "         !",
+      "        CCCCC",
+      "       =======",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "###*#           ########",
+      "########################",
+    ],
+  },
+  {
+    name: 'sturzflug', difficulty: 2,
+    map: [
+      "",
+      "     D        D",
+      "",
+      "",
+      "   C  C  C  C  C  C",
+      "",
+      "######################",
+      "######################",
+    ],
+  },
+  {
+    // Kamin: hoch hinauf per Wandsprung – oben wartet manchmal die Rakete
+    name: 'kamin', difficulty: 3,
+    map: [
+      "              !",
+      "                   B",
+      "        #   #####",
+      "        #   #####",
+      "        #   #####",
+      "        #   #####",
+      "        #   #####",
+      "        #   #####",
+      "            #####",
+      "            #####",
+      "######################",
+      "######################",
+    ],
+  },
+  {
+    // Federsprünge über Stachelfelder
+    name: 'feder-stacheln', difficulty: 3,
+    map: [
+      "",
+      "       CCC     CCC",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "####*^^^^^^^*^^^^^^^####",
+      "########################",
+    ],
+  },
+  {
+    name: 'luftkampf', difficulty: 4,
+    map: [
+      "",
+      "    D         D",
+      "          B",
+      "",
+      "",
+      "#####    ####    #####",
+      "#####    ####    #####",
+    ],
+  },
+  {
+    // Doppelter Kamin mit Sturzflieger
+    name: 'kletterwand', difficulty: 4,
+    map: [
+      "",
+      "      D            CC",
+      "                 #####",
+      "            #    #####",
+      "     #   ####    #####",
+      "     #   ####    #####",
+      "         ####    #####",
+      "         ####    #####",
+      "########################",
+      "########################",
     ],
   },
 ];

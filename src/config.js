@@ -18,10 +18,18 @@ export const MAX_FALL = 360;     // maximale Fallgeschwindigkeit
 export const COYOTE_TIME = 0.1;  // so lange darf man nach der Kante noch springen
 export const JUMP_BUFFER = 0.12; // Sprung wird kurz "gemerkt", wenn man zu früh drückt
 
+// Parkour
+export const WALL_SLIDE_SPEED = 55;  // so langsam rutscht man an einer Wand herunter
+export const WALL_KICK = 150;        // so stark stößt man sich beim Wandsprung ab
+export const WALL_JUMP_LOCK = 0.12;  // kurz nach dem Wandsprung zählt die Laufrichtung nicht
+export const WALL_COYOTE = 0.08;     // Wandsprung geht auch noch kurz nach dem Loslassen der Wand
+export const SPRING_SPEED = 520;     // Sprungfeder: ca. 9,5 Blöcke hoch
+
 // Gegner
 export const ENEMY_SPEED = 28;
 export const JUMPER_JUMP = 260;  // Sprungkraft der Springer
 export const FLYER_SPEED = 22;
+export const SWOOPER_DIVE = 150;     // Sturzflieger: Tempo beim Herabstoßen
 
 // Plattformen
 export const PLATFORM_SPEED = 40;
@@ -43,6 +51,12 @@ export const DOUBLEJUMP_TIME = 15;
 export const SLOWMO_TIME = 5;
 export const SLOWMO_FACTOR = 0.6;     // Welt läuft in Zeitlupe mit 60 % Tempo
 export const HURT_INVUL = 1.2;        // Unverwundbarkeit, nachdem das Schild gebrochen ist
+
+// Rakete: seltenes Power-up, trägt dich unverwundbar über 500 m weit
+export const ROCKET_METERS = 510;     // Mindeststrecke (die Landung kommt auf flachem Boden danach)
+export const ROCKET_SPEED = 900;      // Pixel/s – ca. 9 Sekunden Flug
+export const ROCKET_CHANCE = 0.25;    // Wahrscheinlichkeit auf einem !-Platz
+export const ROCKET_MIN_GAP = 600;    // mindestens so viele Blöcke zwischen zwei Raketen
 
 // Tempo-Stufen (Einstellungen): das ganze Spiel läuft schneller – dafür gibt es mehr Punkte.
 // Nur der Scroll allein ginge nicht: über MOVE_SPEED wäre das Spiel nicht mehr schaffbar.
