@@ -1,11 +1,13 @@
 import {
-  TILE, ROWS, JUMP_BUFFER, SCROLL_SPEED, DEATH_PAUSE, GENERATE_AHEAD, POINTS_COIN, POINTS_STOMP,
+  TILE, ROWS, JUMP_BUFFER, DEATH_PAUSE, GENERATE_AHEAD, POINTS_COIN, POINTS_STOMP,
 } from './config.js';
-import { createWorld, ensureGenerated, pruneBehind } from './world.js';
+import { createWorld, ensureGenerated, pruneBehind, updateCrumbling } from './world/world.js';
+import { scrollSpeedAt, tierAt } from './world/difficulty.js';
 import { randomSeed } from './core/random.js';
 import { moveAxis } from './input.js';
 import { updatePlayer } from './entities/player.js';
 import { updateEnemy } from './entities/enemy.js';
+import { updatePlatform } from './entities/platform.js';
 import { puff, updateParticles } from './particles.js';
 import { overlap } from './physics.js';
 import { loadBest, saveBest } from './storage/best.js';
@@ -31,7 +33,7 @@ export class Game {
     this.world = createWorld(this.seed);
     this.camX = 0;
     this.camY = ROWS * TILE - this.viewHeight;  // Boden bündig am unteren Rand
-    this.scrollSpeed = SCROLL_SPEED;
+    this.scrollSpeed = scrollSpeedAt(0);
     this.distance = 0;
     this.coins = 0;
     this.stomps = 0;
@@ -39,6 +41,7 @@ export class Game {
   }
 
   get meters() { return Math.floor(this.distance / TILE); }
+  get tier() { return tierAt(this.meters); }
   get score() { return this.meters + this.coins * POINTS_COIN + this.stomps * POINTS_STOMP; }
 
   jump() {
@@ -57,10 +60,15 @@ export class Game {
       return;
     }
     if (this.state === 'ready' && (moveAxis() !== 0 || p.jumpBuffer > 0)) this.state = 'run';
-    if (this.state === 'run') this.camX += this.scrollSpeed * dt;
+    if (this.state === 'run') {
+      this.scrollSpeed = scrollSpeedAt(this.meters);
+      this.camX += this.scrollSpeed * dt;
+    }
 
+    for (const pl of w.platforms) updatePlatform(pl, dt);
     updatePlayer(p, this, dt);
     for (const e of w.enemies) updateEnemy(e, this, dt);
+    updateCrumbling(w, dt, (c, r) => puff(w.particles, c * TILE + 8, r * TILE + 8, 8, '#a0703a'));
     if (this.state === 'dead') return;
 
     // --- Rechter Bildrand ist eine Wand, linker Bildrand ist tödlich
@@ -85,6 +93,9 @@ export class Game {
   }
 
   stomp() { this.stomps++; }
+
+  // Treffer durch Gegner oder Stacheln (später: Schild fängt ihn ab)
+  hurt() { this.die(); }
 
   die() {
     if (this.state === 'dead') return;

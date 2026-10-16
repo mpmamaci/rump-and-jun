@@ -1,5 +1,6 @@
 import { TILE } from './config.js';
 import { PARTICLE_LIFE } from './particles.js';
+import { ENEMY_COLORS } from './entities/enemy.js';
 
 // Platzhalter-Grafik in 16px-Pixeln – wird in M3 durch unsere eigenen Sprites ersetzt.
 // Alle Positionen werden gerundet, damit nichts zwischen zwei Pixeln landet.
@@ -13,7 +14,8 @@ export function draw(ctx, game) {
 
   ctx.save();
   ctx.translate(-R(camX), -R(camY));
-  drawTiles(ctx, world, camX, W);
+  drawTiles(ctx, world, camX, W, time);
+  drawPlatforms(ctx, world.platforms);
   drawCoins(ctx, world.coins, time);
   drawEnemies(ctx, world.enemies, time);
   if (game.state !== 'dead') drawPlayer(ctx, world.player);
@@ -45,7 +47,7 @@ function drawBackground(ctx, W, H, camX) {
   }
 }
 
-function drawTiles(ctx, world, camX, W) {
+function drawTiles(ctx, world, camX, W, time) {
   // nur die sichtbaren Spalten zeichnen
   const c0 = Math.floor(camX / TILE), c1 = c0 + Math.ceil(W / TILE) + 1;
   for (let r = 0; r < world.rows; r++) for (let c = c0; c <= c1; c++) {
@@ -63,6 +65,13 @@ function drawTiles(ctx, world, camX, W) {
       ctx.fillRect(x + 1, y + 1, TILE - 2, 6);
       ctx.fillRect(x + 1, y + 8, 6, 7);
       ctx.fillRect(x + 8, y + 8, 7, 7);
+    } else if (t === '~') {
+      // Bröckel-Plattform: wackelt, sobald jemand drauf steht
+      const shaking = world.crumbling.has(c + ',' + r);
+      const sx = shaking ? R(Math.sin(time * 60) * 1) : 0;
+      ctx.fillStyle = '#6b4a2a'; ctx.fillRect(x + sx, y, TILE, 8);
+      ctx.fillStyle = '#a0703a'; ctx.fillRect(x + sx + 1, y + 1, TILE - 2, 5);
+      ctx.fillStyle = '#6b4a2a'; ctx.fillRect(x + sx + 5, y + 1, 1, 3); ctx.fillRect(x + sx + 11, y + 3, 1, 3);
     } else if (t === '^') {
       ctx.fillStyle = '#9aa3ad';
       for (let i = 0; i < 2; i++) {
@@ -71,6 +80,16 @@ function drawTiles(ctx, world, camX, W) {
         ctx.fill();
       }
     }
+  }
+}
+
+function drawPlatforms(ctx, platforms) {
+  for (const pl of platforms) {
+    const x = R(pl.x), y = R(pl.y);
+    ctx.fillStyle = '#3d6e8c'; ctx.fillRect(x, y, pl.w, pl.h);
+    ctx.fillStyle = '#6fb3d9'; ctx.fillRect(x + 1, y + 1, pl.w - 2, 2);
+    ctx.fillStyle = '#2a4d63';
+    for (let i = 6; i < pl.w; i += 12) ctx.fillRect(x + i, y + 3, 2, 2);
   }
 }
 
@@ -90,12 +109,16 @@ function drawEnemies(ctx, enemies, time) {
   for (const e of enemies) {
     if (!e.alive && e.squish <= 0) continue;
     const x = R(e.x), y = R(e.y);
-    ctx.fillStyle = '#8e44ad';
+    ctx.fillStyle = ENEMY_COLORS[e.type];
     if (!e.alive) { ctx.fillRect(x, y + e.h - 3, e.w, 3); continue; }
     const wob = Math.sin(time * 12 + e.x) > 0 ? 1 : 0;
     ctx.fillRect(x + 2, y + wob, e.w - 4, 2);
     ctx.fillRect(x, y + 2 + wob, e.w, e.h - 2 - wob);
-    const look = Math.sign(e.vx);
+    if (e.type === 'flyer') {  // Flügel
+      const up = Math.sin(time * 18) > 0;
+      ctx.fillRect(x - 3, y + (up ? 0 : 4), 3, 2); ctx.fillRect(x + e.w, y + (up ? 0 : 4), 3, 2);
+    }
+    const look = e.type === 'jumper' ? -1 : Math.sign(e.vx);
     ctx.fillStyle = '#fff'; ctx.fillRect(x + 3 + look, y + 3, 3, 3); ctx.fillRect(x + 7 + look, y + 3, 3, 3);
     ctx.fillStyle = '#000'; ctx.fillRect(x + 4 + look, y + 4, 1, 2); ctx.fillRect(x + 8 + look, y + 4, 1, 2);
   }
