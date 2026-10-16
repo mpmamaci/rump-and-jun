@@ -36,6 +36,7 @@ const STRINGS = {
     'name.hint1': '↑ ↓ ODER TIPPEN: BUCHSTABE', 'name.hint2': 'LEERTASTE / ENTER: WEITER',
     'board.title': 'RANGLISTE', 'board.back': 'LEERTASTE: ZURÜCK', 'board.again': 'LEERTASTE: NOCHMAL!',
     'board.name': 'NAME', 'board.meters': 'METER', 'board.points': 'PUNKTE',
+    'pad.connected': 'CONTROLLER VERBUNDEN',
     // HTML rund ums Spiel
     'html.run': 'laufen', 'html.jump': 'springen', 'html.hold': '(halten = höher)', 'html.space': 'Leertaste',
     'html.pause': 'Pause', 'html.fullscreen': 'Vollbild', 'html.sound': 'Ton',
@@ -73,6 +74,7 @@ const STRINGS = {
     'name.hint1': '↑ ↓ OR TYPE: LETTER', 'name.hint2': 'SPACE / ENTER: NEXT',
     'board.title': 'LEADERBOARD', 'board.back': 'SPACE: BACK', 'board.again': 'SPACE: PLAY AGAIN!',
     'board.name': 'NAME', 'board.meters': 'METERS', 'board.points': 'SCORE',
+    'pad.connected': 'CONTROLLER CONNECTED',
     'html.run': 'run', 'html.jump': 'jump', 'html.hold': '(hold = higher)', 'html.space': 'Space',
     'html.pause': 'Pause', 'html.fullscreen': 'Fullscreen', 'html.sound': 'Sound',
     'html.rotate': '↻ Turn your phone sideways for the best view',

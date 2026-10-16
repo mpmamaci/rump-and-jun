@@ -45,6 +45,7 @@ export class Game {
     this.lastName = 'AAA';
     this.store.load().then(list => { this.leaderboard = list; });
     this.sound = () => {};   // wird in main.js mit dem Audio-System verbunden
+    this.toast = null;       // kurzer Hinweis unten im Bild, z. B. „Controller verbunden“
     // Ton-Schalter – main.js verbindet sie mit dem Audio-System
     this.options = {
       sound: () => true, setSound() {}, music: () => true, setMusic() {},
@@ -158,6 +159,8 @@ export class Game {
   get zone() { return Math.floor(this.meters / ZONE_METERS); }  // alle 500 m neue Zone (Musik, Biom)
   get biome() { return biomeForZone(this.inTitle ? 0 : this.zone); }
 
+  showToast(text) { this.toast = { text, t: 0 }; }
+
   addShake(px) { this.shake = Math.max(this.shake, px); }
 
   get tempo() { return TEMPO_LEVELS[this.tempoIndex]; }
@@ -259,6 +262,7 @@ export class Game {
     for (const pop of this.popups) { pop.t += dt; pop.y -= 18 * dt; }
     this.popups = this.popups.filter(pop => pop.t < 1.2);
     this.shake = Math.max(0, this.shake - 24 * dt);
+    if (this.toast) { this.toast.t += dt; if (this.toast.t > 2.5) this.toast = null; }
     if (this.banner) { this.banner.t += dt; if (this.banner.t > 2.5) this.banner = null; }
 
     if (this.inTitle) {

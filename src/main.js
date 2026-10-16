@@ -8,7 +8,8 @@ import { loadFont } from './render/font.js';
 import { unlockAudio, playSfx, startMusic, stopMusic, setSong, setTempo, audioSettings, setSound, setMusic } from './audio/audio.js';
 import { SONGS } from './data/music.js';
 import { initTouch } from './ui/touch.js';
-import { applyHtml, getLang, setLang, LANGUAGES } from './i18n.js';
+import { pollGamepad } from './ui/gamepad.js';
+import { applyHtml, getLang, setLang, LANGUAGES, t } from './i18n.js';
 import { toggleFullscreen, isFullscreen, isStandalone, onFullscreenChange } from './ui/fullscreen.js';
 import { loadTouchLayout, saveTouchLayout } from './storage/touch-layout.js';
 
@@ -180,8 +181,12 @@ const MAX_STEPS = 5;  // falls der Tab hängt: nicht hunderte Schritte nachholen
 let last = performance.now();
 let acc = 0;
 function loop(now) {
-  acc += Math.min((now - last) / 1000, MAX_STEPS * STEP);
+  const frameDt = Math.min((now - last) / 1000, MAX_STEPS * STEP);
+  acc += frameDt;
   last = now;
+  // Controller abfragen (die Gamepad-API meldet sich nicht von selbst, man muss nachsehen)
+  const padMode = game.state === 'run' || game.state === 'ready' ? 'play' : game.state === 'name' ? 'name' : 'menu';
+  pollGamepad(frameDt, padMode, onKeyDown, () => game.showToast(t('pad.connected')));
   while (acc >= STEP) {
     game.update(STEP);
     acc -= STEP;
