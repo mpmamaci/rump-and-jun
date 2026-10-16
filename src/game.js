@@ -1,6 +1,7 @@
 import {
   TILE, ROWS, JUMP_BUFFER, DEATH_PAUSE, GENERATE_AHEAD, POINTS_COIN, POINTS_STOMP,
   DOUBLEJUMP_TIME, SLOWMO_TIME, SLOWMO_FACTOR, HURT_INVUL, JUMP_SPEED, ZONE_METERS, TEMPO_LEVELS,
+  FOX_CHANCE, FOX_MAX_PER_RUN, FOX_THINK_TIME, FOX_RESCUE_INVUL,
   ROCKET_METERS, ROCKET_SPEED, MOVE_SPEED,
 } from './config.js';
 import { POWERUP_INFO } from './entities/powerup.js';
@@ -20,6 +21,8 @@ import { createMenu, menuKey, menuTap, labelOf } from './ui/menu.js';
 import { biomeForZone } from './data/biomes.js';
 import { loadTempo, saveTempo } from './storage/tempo.js';
 import { t } from './i18n.js';
+import { foxMove } from './fox/tictactoe.js';
+import { createDuel, settle, hitTest, moveCursor, GIVE_UP } from './fox/fox.js';
 
 const NAME_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 const onOff = on => t(on ? 'on' : 'off');
@@ -30,6 +33,7 @@ const onOff = on => t(on ? 'on' : 'off');
 //   'paused'   – Pause-Menü
 //   'ready' – Spieler steht am Start, Scroll wartet auf die erste Eingabe
 //   'run'   – Auto-Scroll läuft
+//   'fox'   – der Fuchs fordert dich nach dem Tod zu Tic-Tac-Toe heraus
 //   'dead'  – kurzer Moment nach dem Tod
 //   'name'  – Top-10-Platz geschafft: drei Buchstaben eingeben
 //   'board' – Rangliste anzeigen
@@ -148,6 +152,8 @@ export class Game {
     this.bestCombo = 0;
     this.effects = { doublejump: 0, shield: false, slowmo: 0, rocket: null };
     this.popups = [];   // kurze Texte in der Welt, z. B. "SCHILD!"
+    this.fox = null;     // laufendes Tic-Tac-Toe gegen den Fuchs
+    this.foxRescues = 0;
     this.shake = 0;      // Bildschirmwackeln in Pixeln
     this.lastZone = 0;
     this.banner = null;  // großer Text beim Zonenwechsel
@@ -180,6 +186,7 @@ export class Game {
 
   // Tasten für Menüs; gibt true zurück, wenn die Taste verbraucht wurde
   handleKey(code, key, repeat) {
+    if (this.state === 'fox') return this.foxKey(code, key, repeat);
     if (this.state === 'name') return this.handleNameKey(code, key, repeat);
     if (this.state === 'title' || this.state === 'paused' || this.state === 'settings') {
       menuKey(this.menu, code, repeat, this.sound);
@@ -206,6 +213,12 @@ export class Game {
 
   // Antippen/Klicken auf das Spielbild (Koordinaten in Spielpixeln)
   handleTap(x, y) {
+    if (this.state === 'fox') {
+      const hit = hitTest(x, y);
+      if (hit === GIVE_UP) this.foxGiveUp();
+      else if (hit >= 0) { this.fox.cursor = hit; this.foxPlace(hit); }
+      return;
+    }
     if (this.state === 'title' || this.state === 'paused' || this.state === 'settings') {
       menuTap(this.menu, x, y, this.viewWidth, this.sound);
     } else if (this.state === 'board' && this.boardTimer > 0.4) {
@@ -274,6 +287,7 @@ export class Game {
       pruneBehind(w, firstCol - 2);
     }
     if (this.state === 'board') { this.boardTimer += dt; return; }
+    if (this.state === 'fox') { this.updateFox(dt); return; }
     if (this.state !== 'ready' && this.state !== 'run' && this.state !== 'dead') return;
     if (this.state === 'dead') {
       this.deadTimer += dt;
@@ -451,9 +465,21 @@ export class Game {
   }
 
   die() {
-    if (this.state === 'dead' || this.effects.rocket) return;
+    if (this.state === 'dead' || this.state === 'fox' || this.effects.rocket) return;
     const p = this.world.player;
     puff(this.world.particles, p.x + p.w / 2, p.y + p.h / 2, 16, '#e84a5f');
+    // Manchmal taucht der Fuchs auf und gibt dir noch eine Chance
+    if (this.state === 'run' && this.foxRescues < FOX_MAX_PER_RUN && Math.random() < FOX_CHANCE) {
+      this.state = 'fox';
+      this.fox = createDuel();
+      this.sound('rocket');
+      return;
+    }
+    this.finishDeath();
+  }
+
+  finishDeath() {
+    this.fox = null;
     this.state = 'dead';
     this.deadTimer = 0;
     this.sound('death');
@@ -464,5 +490,83 @@ export class Game {
       saveBest(this.best);
       this.sound('record');
     }
+  }
+
+  // ---------------- Fuchs: Tic-Tac-Toe ----------------
+  updateFox(dt) {
+    const f = this.fox;
+    if (f.outcome) {
+      f.outcomeTimer += dt;
+      if (f.outcomeTimer > 1.6) f.outcome === 'win' ? this.foxRescue() : this.finishDeath();
+      return;
+    }
+    if (f.turn === 'O') {
+      f.timer += dt;
+      if (f.timer < FOX_THINK_TIME) return;
+      f.board[foxMove(f.board)] = 'O';
+      this.sound('blip');
+      if (settle(f)) this.foxOutcomeSound();
+      else f.turn = 'X';
+    }
+  }
+
+  foxKey(code, key, repeat) {
+    const f = this.fox;
+    if (f.outcome) return true;
+    const dirs = { ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right', ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down' };
+    if (dirs[code]) { f.cursor = moveCursor(f.cursor, dirs[code]); this.sound('blip'); return true; }
+    if (/^[1-9]$/.test(key)) { f.cursor = Number(key) - 1; this.foxPlace(f.cursor); return true; }
+    if (repeat) return true;
+    if (code === 'Escape') this.foxGiveUp();
+    else if (code === 'Space' || code === 'Enter') f.cursor === GIVE_UP ? this.foxGiveUp() : this.foxPlace(f.cursor);
+    return true;
+  }
+
+  foxPlace(i) {
+    const f = this.fox;
+    if (f.outcome || f.turn !== 'X' || f.board[i]) return;
+    f.board[i] = 'X';
+    this.sound('confirm');
+    if (settle(f)) this.foxOutcomeSound();
+    else { f.turn = 'O'; f.timer = 0; }
+  }
+
+  foxGiveUp() {
+    if (this.fox.outcome) return;
+    this.fox.outcome = 'gaveup';
+    this.fox.outcomeTimer = 1.2;  // kurz zeigen, dann Game Over
+  }
+
+  foxOutcomeSound() {
+    this.sound(this.fox.outcome === 'win' ? 'powerup' : 'shieldbreak');
+  }
+
+  // Gewonnen: Der Fuchs setzt dich auf sicheren Boden im Bild
+  foxRescue() {
+    const w = this.world, p = w.player;
+    this.fox = null;
+    this.foxRescues++;
+    this.state = 'run';
+    const startCol = Math.floor((this.camX + 120) / TILE);
+    const endCol = Math.floor((this.camX + this.viewWidth - 40) / TILE);
+    let spot = null;
+    for (let c = startCol; c <= endCol && !spot; c++) {
+      for (let r = 2; r < w.rows; r++) {
+        const tile = w.tileAt(c, r);
+        if (tile === ' ') continue;
+        // erster Block von oben: fester Boden ohne Stacheln darüber?
+        if ((tile === '#' || tile === '=') && w.tileAt(c, r - 1) === ' ' && w.tileAt(c, r - 2) === ' ') spot = { c, r };
+        break;
+      }
+    }
+    if (!spot) spot = { c: startCol, r: 3 };  // Notfall: von oben herabfallen
+    p.x = spot.c * TILE + 2; p.y = spot.r * TILE - p.h;
+    p.vx = 0; p.vy = 0; p.riding = null; p.airJumpUsed = false;
+    p.invul = FOX_RESCUE_INVUL;
+    // Gegner direkt neben dem Landeplatz verschwinden
+    for (const e of w.enemies) if (e.alive && Math.abs(e.x - p.x) < 40) { e.alive = false; e.squish = 0.3; }
+    puff(w.particles, p.x + p.w / 2, p.y + p.h / 2, 18, '#ef7d57');
+    this.popup(t('popup.foxRescue'), p.x + p.w / 2, p.y - 10, '#ef7d57');
+    this.sound('powerup');
   }
 }

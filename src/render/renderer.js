@@ -7,6 +7,7 @@ import { POWERUP_INFO } from '../entities/powerup.js';
 import { DOUBLEJUMP_TIME, SLOWMO_TIME } from '../config.js';
 import { menuLayout, labelOf } from '../ui/menu.js';
 import { t } from '../i18n.js';
+import { FOX_LAYOUT, GIVE_UP } from '../fox/fox.js';
 
 // Alle Positionen werden gerundet, damit nichts zwischen zwei Pixeln landet.
 const R = Math.round;
@@ -36,7 +37,7 @@ function drawScene(ctx, game) {
   drawCoins(ctx, world.coins, time);
   drawPowerups(ctx, world.powerups, time);
   drawEnemies(ctx, world.enemies, time);
-  if (game.state !== 'dead' && !game.inTitle) drawPlayer(ctx, world.player, time, game.effects);
+  if (game.state !== 'dead' && game.state !== 'fox' && !game.inTitle) drawPlayer(ctx, world.player, time, game.effects);
   drawParticles(ctx, world.particles);
   drawPopups(ctx, game.popups);
   ctx.restore();
@@ -55,12 +56,13 @@ function drawScene(ctx, game) {
   }
 
   drawDeathWall(ctx, H, time);
-  drawHud(ctx, game, W);
+  if (game.state !== 'fox') drawHud(ctx, game, W);  // beim Fuchs-Duell hätte die Überschrift sonst keinen Platz
   if (game.banner && game.state === 'run') drawBanner(ctx, W, game.banner);
   if (game.state === 'ready') drawReady(ctx, W, H, time);
   if (game.state === 'paused') drawMenuScreen(ctx, W, H, game, t('menu.pause'), time);
   if (game.state === 'settings') drawMenuScreen(ctx, W, H, game, t('menu.settings'), time);
   if (game.state === 'dead') drawDead(ctx, W, H, game);
+  if (game.state === 'fox') drawFox(ctx, W, H, game, time);
   if (game.state === 'name') drawNameEntry(ctx, W, H, game, time);
   if (game.state === 'board') drawBoard(ctx, W, H, game, time);
 }
@@ -365,6 +367,50 @@ function drawDead(ctx, W, H, game) {
 
 function dim(ctx, W, H, a = 0.8) {
   ctx.fillStyle = C.k; ctx.globalAlpha = a; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1;
+}
+
+// Tic-Tac-Toe gegen den Fuchs
+function drawFox(ctx, W, H, game, time) {
+  const f = game.fox, L = FOX_LAYOUT;
+  dim(ctx, W, H, 0.82);
+  drawText(ctx, t('fox.title'), W / 2, 14, { scale: 2, align: 'center', color: C.o, shadow: C.r });
+  drawText(ctx, t('fox.sub'), W / 2, 36, { align: 'center', color: C.s });
+
+  // Der Fuchs – wippt beim Nachdenken
+  const think = f.turn === 'O' && !f.outcome;
+  const bob = think ? R(Math.sin(time * 10) * 2) : R(Math.sin(time * 2) * 1);
+  drawSprite(ctx, 'fox', 'idle', time, L.fox.x, L.fox.y + bob, { w: 16 * L.fox.scale, h: 16 * L.fox.scale });
+
+  // Brett
+  const size = L.cell * 3;
+  ctx.fillStyle = C.d; ctx.fillRect(L.x0, L.y0, size, size);
+  ctx.fillStyle = C.m;
+  for (let i = 1; i < 3; i++) {
+    ctx.fillRect(L.x0 + i * L.cell - 1, L.y0 + 4, 2, size - 8);
+    ctx.fillRect(L.x0 + 4, L.y0 + i * L.cell - 1, size - 8, 2);
+  }
+  f.board.forEach((v, i) => {
+    const cx = L.x0 + (i % 3) * L.cell + L.cell / 2, cy = L.y0 + Math.floor(i / 3) * L.cell + L.cell / 2;
+    if (v) drawText(ctx, v, cx, cy - 10, { scale: 3, align: 'center', color: v === 'X' ? C.w : C.o, shadow: v === 'X' ? C.r : C.e });
+  });
+  // Cursor
+  if (!f.outcome && f.turn === 'X' && f.cursor !== GIVE_UP && Math.floor(time * 3) % 2 === 0) {
+    const cx = L.x0 + (f.cursor % 3) * L.cell, cy = L.y0 + Math.floor(f.cursor / 3) * L.cell;
+    ctx.fillStyle = C.a;
+    ctx.fillRect(cx + 3, cy + 3, L.cell - 6, 2); ctx.fillRect(cx + 3, cy + L.cell - 5, L.cell - 6, 2);
+    ctx.fillRect(cx + 3, cy + 3, 2, L.cell - 6); ctx.fillRect(cx + L.cell - 5, cy + 3, 2, L.cell - 6);
+  }
+
+  // Aufgeben-Button
+  const g = L.giveUp, sel = f.cursor === GIVE_UP && !f.outcome;
+  ctx.fillStyle = sel ? C.r : C.d; ctx.fillRect(g.x, g.y, g.w, g.h);
+  drawText(ctx, t('fox.giveUp'), g.x + g.w / 2, g.y + 4, { align: 'center', color: sel ? C.w : C.s });
+
+  // Status
+  const status = f.outcome ? t('fox.' + f.outcome) : think ? t('fox.thinking') : t('fox.yourTurn');
+  const color = f.outcome === 'win' ? C.l : f.outcome ? C.x : think ? C.o : C.a;
+  drawText(ctx, status, L.x0 + size / 2, 210, { align: 'center', color, scale: f.outcome ? 2 : 1, shadow: C.k });
+  drawText(ctx, t('fox.hint'), W / 2, H - 14, { align: 'center', color: C.m });
 }
 
 function drawNameEntry(ctx, W, H, game, time) {
