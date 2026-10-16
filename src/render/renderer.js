@@ -287,7 +287,12 @@ function drawHud(ctx, game, W) {
   panel(ctx, 6, 6, 92, 30);
   drawText(ctx, game.meters + ' M', 11, 10, { scale: 2, shadow: C.k });
   drawText(ctx, 'PUNKTE ' + game.score, 11, 27, { color: C.q });
-  if (game.combo > 1) drawText(ctx, '×' + game.combo, 92, 10, { scale: 2, align: 'right', color: C.o, shadow: C.k });
+  // Kombo unter dem Punkte-Feld (oben rechts im Feld wäre sie bei langen Strecken im Weg)
+  if (game.combo > 1) {
+    const label = 'KOMBO ×' + game.combo;
+    panel(ctx, 6, 38, label.length * 6 + 8, 13);
+    drawText(ctx, label, 10, 41, { color: C.o });
+  }
 
   // aktive Power-ups mit Restzeit-Balken
   let ix = 104;
