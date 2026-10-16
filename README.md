@@ -3,7 +3,7 @@
 Ein endloses Pixel-Art-Jump-and-Run im Browser, gebaut mit purem JavaScript und dem HTML5-Canvas.
 Die Strecke scrollt automatisch und wird immer schneller und schwerer. Wie weit kommst du?
 
-**Alles ist selbst gemacht:** Grafiken, Schrift, Soundeffekte und Musik entstehen im Projekt selbst und kommen nicht aus dem Netz. Es gibt keine Abhängigkeiten.
+**Alles ist selbst gemacht:** Grafiken, Schrift, Soundeffekte und Musik entstehen im Projekt selbst und kommen nicht aus dem Netz. Das Spiel hat keine Abhängigkeiten. Nur zum Bauen der Webspace-Version wird das Werkzeug esbuild genutzt.
 
 ## Features
 
@@ -19,7 +19,7 @@ Die Strecke scrollt automatisch und wird immer schneller und schwerer. Wie weit 
 
 ## Starten
 
-Du brauchst nur [Node.js](https://nodejs.org) und keine weiteren Pakete:
+Zum Entwickeln brauchst du nur [Node.js](https://nodejs.org), keine weiteren Pakete:
 
 ```bash
 npm run dev
@@ -41,6 +41,27 @@ Der Server zeigt dann die Adressen im Heimnetz an, zum Beispiel `http://192.168.
 - Beim ersten Start fragt macOS eventuell, ob `node` eingehende Verbindungen annehmen darf. Erlaube das.
 - Im Netzwerk-Modus kann jeder im selben WLAN das Spiel öffnen und Skins speichern. Nutze ihn deshalb nur zu Hause und nicht in öffentlichen WLANs.
 - Das Pixel-Studio funktioniert auf dem iPad mit Finger und Apple Pencil.
+
+## Veröffentlichen (statischer Webspace)
+
+```bash
+npm install      # einmalig: holt das Build-Werkzeug esbuild
+npm run build
+```
+
+Der Befehl erzeugt den Ordner `dist/` mit einer minifizierten Version des Spiels:
+
+- Das ganze JavaScript liegt gebündelt in einer Datei, dazu kommen minifiziertes CSS und HTML.
+- Sprites, Schrift und **alle Skins** sind als kompakte JSON-Dateien dabei.
+- Die Dateinamen enthalten einen Inhalts-Hash, damit Browser nach einem Update die neue Version laden.
+- Pixel-Studio, Dev-Server und Dokumentation sind nicht enthalten.
+- Vorher werden automatisch alle Chunks geprüft.
+
+Danach lädst du den **Inhalt** von `dist/` per FTP oder über das Tool deines Hosters auf den Webspace hoch. Es wird kein Server-Programm gebraucht, jeder normale Webspace reicht.
+
+**Ablauf bei Änderungen:** lokal mit `npm run dev` arbeiten (Code, Chunks, Skins im Pixel-Studio), dann `npm run build` und `dist/` erneut hochladen. Alte `game-…js`- und `style-…css`-Dateien auf dem Webspace kannst du dabei löschen.
+
+Hinweis: Per Doppelklick auf `index.html` läuft das Spiel nicht. Browser laden ohne Webserver keine Module und Dateien.
 
 ## Steuerung
 

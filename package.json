@@ -7,6 +7,10 @@
   "scripts": {
     "dev": "node tools/dev-server.mjs",
     "dev:lan": "node tools/dev-server.mjs --lan",
+    "build": "node tools/build.mjs",
     "check": "node tools/check-chunks.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12"
   }
 }
