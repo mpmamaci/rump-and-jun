@@ -20,11 +20,11 @@ export function updateEnemy(e, game, dt) {
   const groundAhead = enemySolid(world.tileAt(Math.floor(aheadX / TILE), Math.floor((e.y + e.h + 1) / TILE)));
   if (e.hitWall || (e.onGround && !groundAhead)) e.vx = -dirBefore * ENEMY_SPEED;
 
-  if (overlap(p, e) && p.invul <= 0) {
+  if (overlap(p, e)) {
     if (p.vy > 0 && p.y + p.h - e.y < 7) {   // von oben drauf gesprungen
       e.alive = false; e.squish = 0.4;
       p.vy = -JUMP_SPEED * 0.6;
-      game.score += 100;
+      game.stomp();
       puff(world.particles, e.x + e.w / 2, e.y + e.h / 2, 10, '#b06ad9');
     } else game.die();
   }

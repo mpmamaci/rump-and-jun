@@ -14,16 +14,16 @@ export function draw(ctx, game) {
   ctx.save();
   ctx.translate(-R(camX), -R(camY));
   drawTiles(ctx, world, camX, W);
-  drawFlag(ctx, world.flag, time);
   drawCoins(ctx, world.coins, time);
   drawEnemies(ctx, world.enemies, time);
-  if (game.state !== 'over') drawPlayer(ctx, world.player, time);
+  if (game.state !== 'dead') drawPlayer(ctx, world.player);
   drawParticles(ctx, world.particles);
   ctx.restore();
 
+  drawDeathWall(ctx, H, time);
   drawHud(ctx, game);
-  if (game.state === 'win') overlay(ctx, W, H, 'GESCHAFFT!', 'Punkte: ' + game.score + '  ·  R für Neustart');
-  if (game.state === 'over') overlay(ctx, W, H, 'GAME OVER', 'Drücke R für einen neuen Versuch');
+  if (game.state === 'ready') drawReady(ctx, W, H, time);
+  if (game.state === 'dead') drawDead(ctx, W, H, game);
 }
 
 function drawBackground(ctx, W, H, camX) {
@@ -38,16 +38,16 @@ function drawBackground(ctx, W, H, camX) {
     cloud(ctx, R(x), 24 + (i * 21) % 50);
   }
   ctx.fillStyle = '#7ccf7a';
-  for (let i = 0; i < 40; i++) {
+  const first = Math.floor(camX * 0.4 / 104) - 1;
+  for (let i = first; i < first + Math.ceil(W / 104) + 3; i++) {
     const x = R(i * 104 - camX * 0.4);
-    if (x < -120 || x > W + 120) continue;
-    ctx.beginPath(); ctx.arc(x, H - 24, 56 + (i % 3) * 16, Math.PI, 0); ctx.fill();
+    ctx.beginPath(); ctx.arc(x, H - 24, 56 + (((i % 3) + 3) % 3) * 16, Math.PI, 0); ctx.fill();
   }
 }
 
 function drawTiles(ctx, world, camX, W) {
   // nur die sichtbaren Spalten zeichnen
-  const c0 = Math.max(0, Math.floor(camX / TILE)), c1 = Math.min(c0 + Math.ceil(W / TILE) + 1, world.cols - 1);
+  const c0 = Math.floor(camX / TILE), c1 = c0 + Math.ceil(W / TILE) + 1;
   for (let r = 0; r < world.rows; r++) for (let c = c0; c <= c1; c++) {
     const t = world.tileAt(c, r), x = c * TILE, y = r * TILE;
     if (t === '#') {
@@ -72,15 +72,6 @@ function drawTiles(ctx, world, camX, W) {
       }
     }
   }
-}
-
-function drawFlag(ctx, flag, time) {
-  if (!flag) return;
-  ctx.fillStyle = '#ddd'; ctx.fillRect(flag.x, flag.y, 2, flag.h);
-  ctx.fillStyle = '#ffd23f'; ctx.fillRect(flag.x - 1, flag.y - 2, 4, 3);
-  const wave = R(Math.sin(time * 6) * 2);
-  ctx.fillStyle = '#2ecc71';
-  ctx.beginPath(); ctx.moveTo(flag.x + 2, flag.y + 2); ctx.lineTo(flag.x + 22, flag.y + 9 + wave); ctx.lineTo(flag.x + 2, flag.y + 16); ctx.fill();
 }
 
 function drawCoins(ctx, coins, time) {
@@ -110,8 +101,7 @@ function drawEnemies(ctx, enemies, time) {
   }
 }
 
-function drawPlayer(ctx, p, time) {
-  if (p.invul > 0 && Math.floor(time * 15) % 2) return;  // blinkt nach Treffer
+function drawPlayer(ctx, p) {
   const w = R(p.w * p.scaleX), h = R(p.h * p.scaleY);
   const x = R(p.x + (p.w - w) / 2), y = R(p.y + p.h - h);
   ctx.fillStyle = '#e84a5f'; ctx.fillRect(x, y, w, h);
@@ -131,29 +121,56 @@ function drawParticles(ctx, particles) {
 
 function drawHud(ctx, game) {
   // Text ist ein Platzhalter bis zur eigenen Pixel-Schrift
-  ctx.fillStyle = '#0008'; ctx.fillRect(6, 6, 120, 18);
-  ctx.fillStyle = '#fff'; ctx.font = 'bold 10px monospace'; ctx.textBaseline = 'middle';
-  ctx.fillText('PUNKTE ' + game.score, 11, 15);
-  ctx.fillStyle = '#e84a5f';
-  for (let i = 0; i < game.lives; i++) heart(ctx, 94 + i * 10, 11);
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#0008'; ctx.fillRect(6, 6, 96, 30);
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 14px monospace';
+  ctx.fillText(game.meters + ' m', 11, 15);
+  ctx.font = '9px monospace'; ctx.fillStyle = '#ffd23f';
+  ctx.fillText('PUNKTE ' + game.score, 11, 29);
+
+  const W = ctx.canvas.width;
+  const best = 'REKORD ' + game.best;
+  ctx.font = '9px monospace';
+  const bw = Math.ceil(ctx.measureText(best).width) + 10;
+  ctx.fillStyle = '#0008'; ctx.fillRect(W - 6 - bw, 6, bw, 14);
+  ctx.fillStyle = '#fff'; ctx.fillText(best, W - 1 - bw, 13);
+}
+
+// Linker Bildrand: pulsierende Stachelwand – wer hier hängen bleibt, stirbt
+function drawDeathWall(ctx, H, time) {
+  const pulse = 0.55 + Math.sin(time * 8) * 0.25;
+  ctx.globalAlpha = pulse;
+  ctx.fillStyle = '#e84a5f'; ctx.fillRect(0, 0, 3, H);
+  ctx.fillStyle = '#ff8a9a';
+  for (let y = 0; y < H; y += 8) {
+    ctx.fillRect(3, y + 2, 2, 4);
+    ctx.fillRect(5, y + 3, 1, 2);
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawReady(ctx, W, H, time) {
+  if (Math.floor(time * 2) % 2) return;  // blinkender Hinweis
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#0008'; ctx.fillRect(W / 2 - 110, H / 2 - 40, 220, 22);
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 10px monospace';
+  ctx.fillText('→ ODER LEERTASTE ZUM STARTEN', W / 2, H / 2 - 29);
+  ctx.textAlign = 'left';
+}
+
+function drawDead(ctx, W, H, game) {
+  ctx.fillStyle = '#000a'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = 'bold 28px monospace'; ctx.fillText(game.meters + ' m', W / 2, H / 2 - 22);
+  ctx.font = 'bold 12px monospace'; ctx.fillStyle = '#ffd23f';
+  ctx.fillText('PUNKTE ' + game.score, W / 2, H / 2 + 4);
+  ctx.font = '10px monospace'; ctx.fillStyle = game.newRecord ? '#7CFC7C' : '#fff';
+  ctx.fillText(game.newRecord ? 'NEUER REKORD!' : 'REKORD ' + game.best, W / 2, H / 2 + 22);
+  ctx.textAlign = 'left';
 }
 
 function cloud(ctx, x, y) {
   ctx.fillRect(x + 4, y, 16, 4);
   ctx.fillRect(x, y + 4, 28, 6);
   ctx.fillRect(x + 8, y - 3, 8, 3);
-}
-
-// 7×6-Pixel-Herz
-const HEART = ['.##.##.', '#######', '#######', '.#####.', '..###..', '...#...'];
-function heart(ctx, x, y) {
-  HEART.forEach((row, ry) => [...row].forEach((ch, rx) => { if (ch === '#') ctx.fillRect(x + rx, y + ry, 1, 1); }));
-}
-
-function overlay(ctx, W, H, title, sub) {
-  ctx.fillStyle = '#000a'; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.font = 'bold 28px monospace'; ctx.fillText(title, W / 2, H / 2 - 12);
-  ctx.font = '10px monospace'; ctx.fillText(sub, W / 2, H / 2 + 14);
-  ctx.textAlign = 'left';
 }

@@ -5,7 +5,7 @@ import { puff } from '../particles.js';
 
 export function createPlayer(x, y) {
   return { x, y, startX: x, startY: y, w: 12, h: 14, vx: 0, vy: 0,
-           onGround: false, coyote: 0, jumpBuffer: 0, facing: 1, scaleX: 1, scaleY: 1, invul: 0 };
+           onGround: false, coyote: 0, jumpBuffer: 0, facing: 1, scaleX: 1, scaleY: 1 };
 }
 
 export function updatePlayer(p, game, dt) {
@@ -42,7 +42,6 @@ export function updatePlayer(p, game, dt) {
   }
   p.scaleX += (1 - p.scaleX) * Math.min(1, 12 * dt);
   p.scaleY += (1 - p.scaleY) * Math.min(1, 12 * dt);
-  p.invul -= dt;
 
   // --- Stacheln (nur untere Hälfte des Blocks ist gefährlich)
   forEachTile(p, (c, r) => {

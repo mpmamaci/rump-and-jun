@@ -27,25 +27,28 @@ jump-and-run/
 ├── index.html           Einstiegsseite
 ├── styles/main.css      Seiten-Design
 ├── src/
-│   ├── main.js          Start + Game Loop
-│   ├── game.js          Spielzustand (Punkte, Leben, Kamera)
-│   ├── config.js        Physik- und Spielwerte zum Tunen
+│   ├── main.js          Start, Skalierung, Game Loop
+│   ├── game.js          Spielzustand (Auto-Scroll, Punkte, Tod & Neustart)
+│   ├── config.js        alle Werte zum Tunen
+│   ├── world.js         endlose Welt aus Chunks
 │   ├── input.js         Tastatur
 │   ├── physics.js       Kollision mit Blöcken
-│   ├── world.js         baut die Welt aus einem Level
 │   ├── renderer.js      zeichnet alles
 │   ├── particles.js     Partikeleffekte
+│   ├── core/random.js   Seed-Zufall
+│   ├── data/chunks.js   Streckenabschnitte als Text-Karten
 │   ├── entities/        Spieler, Gegner
-│   └── levels/          Level als Text-Karten
+│   └── storage/         Rekord (später Leaderboard)
 ├── assets/              Grafiken, Sounds, Schriften
 └── docs/
     ├── PLAN.md          Spielplan & Meilensteine
     └── prototype/       erster Ein-Datei-Prototyp
 ```
 
-## Level bauen
+## Chunks bauen
 
-Ein Level besteht aus Textzeilen in `src/levels/`. Jedes Zeichen ist ein Block mit 16×16 Pixeln:
+Die Strecke wird endlos aus **Chunks** zusammengesetzt, das sind Abschnitte in `src/data/chunks.js`.
+Jedes Zeichen ist ein Block mit 16×16 Pixeln (1 Block = 1 Meter):
 
 | Zeichen | Bedeutung |
 |---|---|
@@ -54,5 +57,6 @@ Ein Level besteht aus Textzeilen in `src/levels/`. Jedes Zeichen ist ein Block m
 | `^` | Stacheln |
 | `C` | Münze |
 | `E` | Gegner |
-| `P` | Spieler-Start |
-| `F` | Zielflagge |
+| `P` | Spieler-Start (nur im Start-Chunk) |
+
+Regeln: Die Karte wird unten ausgerichtet. Die erste und die letzte Spalte brauchen Boden in den untersten zwei Zeilen.
