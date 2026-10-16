@@ -39,7 +39,7 @@ The track scrolls on its own, gets faster and faster, and never ends. How far ca
 
 ## What is this?
 
-Rump & Jun is a small, humorous community game and an open experiment around AI-generated content, often called "AI slop". It asks two questions at once: **how far can a game get when it is built with AI, and how absurd can it become along the way?** Everyone is invited to push it further. Anything goes, as long as nobody is insulted and no one's rights are infringed.
+Rump & Jun is a small, humorous community game and an open experiment around AI-generated content, often called "AI slop". It asks two questions at once: **how far can a game get when it is built with AI, and how absurd can it become along the way?** **Everyone is invited to help build it**, see [Contributing](#contributing). Anything goes, as long as nobody is insulted and no one's rights are infringed.
 
 The name is a wordplay on the video game genre "jump and run".
 
@@ -239,13 +239,22 @@ rump-and-jun/
 
 ## Contributing
 
-**Let's shape this game together!** Pull requests are very welcome, big or small:
+**You're invited to build this game with us!** Whether you want to add one track section or a whole new mechanic, fork the repo, make something and open a pull request. Big or small, every contribution is welcome.
+
+Ideas to get started:
 
 - 🗺️ **New track sections:** a chunk is just a few lines of text, which makes it the easiest way to contribute.
 - 🎨 **Sprites and skins** made in the Pixel Studio.
 - 👾 **New enemies, power-ups or biomes.**
 - 🎵 **Music:** a song is four chords and a few numbers in `src/data/music.js`.
 - 🐛 **Bug reports and ideas** via [issues](https://github.com/mpmamaci/rump-and-jun/issues).
+
+### The house rules
+
+1. **No runtime dependencies.** The game runs on plain JavaScript and the browser alone, with no frameworks, libraries or packages. Development dependencies (tools that only run while building or checking, like esbuild) are fine.
+2. **Make everything yourself.** Code, graphics, music, sounds and texts should be your own work. Work you create with AI counts as your own: AI is welcome here, that's the whole point of the experiment.
+3. **If you use something you didn't make, credit it.** Small building blocks such as a color palette are okay, as long as you say exactly where they come from (creator, link and license) in your PR and in the [Credits](#credits). But whenever you can, really make it yourself.
+4. **Be kind and respect rights.** Don't insult or impersonate real people, and don't add characters, names, logos or assets from other games or brands.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the details.
 

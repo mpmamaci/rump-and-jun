@@ -4,12 +4,15 @@ Thanks for wanting to help shape this game! Contributions of every size are welc
 
 ## Ground rules
 
-Rump & Jun is a community AI satire game: how far can we get with AI, and how absurd can it become? Pretty much anything goes, with two firm limits:
+Rump & Jun is a community AI satire game: how far can we get with AI, and how absurd can it become? **You're warmly invited to help build it.** Pretty much anything goes, as long as you follow these rules:
 
-- **Nobody gets insulted.** No content that attacks, mocks or impersonates real people or groups, and no political campaigning.
-- **No one's rights get infringed.** Only contribute work you made yourself, or made with AI assistance for this project. Don't add assets, characters, names or logos from other games or brands. If you build on someone else's openly licensed work, credit it in your PR and in the README's Credits section.
+1. **No runtime dependencies.** The game must keep running on plain JavaScript and the browser alone, with no frameworks, libraries, npm packages or CDNs, and no assets loaded from the internet. Development dependencies, meaning tools that only run while building or checking (like esbuild), are allowed. Add them as `devDependencies` with a pinned version.
+2. **Make everything yourself.** Code, sprites, music, sound effects and texts should be your own work. Work you create with AI assistance counts as your own: AI is explicitly welcome, it's what this experiment is about.
+3. **Credit anything you didn't make.** Small building blocks such as a color palette are okay, but say exactly where they come from (creator, link and license, if one is stated) in your PR and add them to the README's Credits section. Only use material whose terms allow it. Whenever you can, make it yourself instead.
+4. **Nobody gets insulted.** No content that attacks, mocks or impersonates real people or groups, and no political campaigning.
+5. **No one's rights get infringed.** Don't add characters, names, logos or assets from other games or brands.
 
-AI-assisted contributions are welcome. Please mention in your PR if and how AI was involved.
+Please mention in your PR if and how AI was involved.
 
 ## Getting started
 
@@ -55,6 +58,8 @@ Songs are data in `src/data/music.js` (four chords plus lead, bass and drum patt
 
 ## Before you open a pull request
 
+- [ ] No new runtime dependencies (only pinned `devDependencies`, if any)
+- [ ] Everything is your own work (AI-assisted counts), or the source is credited
 - [ ] `npm run check` passes
 - [ ] `npm run build` succeeds (after a one-time `npm install`)
 - [ ] You played your change in the browser, ideally on desktop and on a phone
