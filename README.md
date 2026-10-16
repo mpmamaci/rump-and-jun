@@ -61,6 +61,7 @@ Rump & Jun is an endless, auto-scrolling pixel-art platformer. You run, jump and
 - 🏆 **Scoring** from distance, coins and enemy combos, plus a local arcade-style **top-10 leaderboard**.
 - 🎚️ **Speed modes:** normal, fast and turbo, each with a score multiplier.
 - 📱 **Desktop, phone and tablet:** touch controls, fullscreen, and it can be installed to your home screen as an app.
+- 🎮 **Controller support** for Xbox, PlayStation and Switch Pro controllers via the browser's built-in Gamepad API.
 - 🎨 **Original assets:** the pixel art, pixel font, sound effects and chiptune music were made for this project. The color palette builds on *Sweetie 16* by GrafxKid (see [Credits](#credits)). No third-party assets are loaded at runtime.
 - 🌍 **English and German:** switch under *Settings → Language*. On first launch the game follows your browser's language.
 
@@ -123,8 +124,19 @@ npm run dev
 | <kbd>R</kbd> | restart |
 | <kbd>M</kbd> | sound on/off |
 
+**Controller** (standard layout, USB or Bluetooth – just press a button to connect):
+
+| Controller | Action |
+|---|---|
+| Left stick / D-pad | run, navigate menus |
+| A / ✕ | jump (hold longer to jump higher), confirm |
+| B / ◯ | back; during name entry: previous letter |
+| Start / Options | pause |
+
+On phones and tablets the on-screen buttons disappear automatically as soon as you use a controller, and the game view takes the whole screen. Tap the screen to bring them back. You can also hide them permanently under *Settings → Buttons → Hidden*, which only takes effect while a controller is connected, so you can never lock yourself out.
+
 **Phone & tablet:**
-- On-screen buttons for running, jumping and pausing. They sit next to the game view so they never cover your character. You can switch them to an overlay in the settings for a larger picture.
+- On-screen buttons for running, jumping and pausing. They sit next to the game view so they never cover your character. In the settings you can switch them to an overlay for a larger picture, or hide them when playing with a controller.
 - Real fullscreen works on Android, iPad and desktop.
 - On **iPhone**, use *Share → Add to Home Screen* to run the game as an app without browser bars.
 
@@ -217,7 +229,7 @@ rump-and-jun/
 │   ├── entities/            player, enemies, platforms, power-ups
 │   ├── render/              renderer, sprite loader, pixel font
 │   ├── audio/               synthesizer and music sequencer
-│   ├── ui/                  menus, touch, fullscreen
+│   ├── ui/                  menus, touch, controller, fullscreen
 │   ├── data/                chunks, palette, biomes, songs
 │   └── storage/             best score, leaderboard, settings
 ├── assets/

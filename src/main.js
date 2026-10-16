@@ -8,7 +8,9 @@ import { loadFont } from './render/font.js';
 import { unlockAudio, playSfx, startMusic, stopMusic, setSong, setTempo, audioSettings, setSound, setMusic } from './audio/audio.js';
 import { SONGS } from './data/music.js';
 import { initTouch } from './ui/touch.js';
-import { applyHtml, getLang, setLang, LANGUAGES } from './i18n.js';
+import { pollGamepad, gamepadConnected } from './ui/gamepad.js';
+import { initButtons, setButtonLayout, markGamepadUse, applyButtons, buttonsHidden, buttonLayout } from './ui/buttons.js';
+import { applyHtml, getLang, setLang, LANGUAGES, t } from './i18n.js';
 import { toggleFullscreen, isFullscreen, isStandalone, onFullscreenChange } from './ui/fullscreen.js';
 import { loadTouchLayout, saveTouchLayout } from './storage/touch-layout.js';
 
@@ -35,8 +37,7 @@ const game = new Game(VIEW_WIDTH, VIEW_HEIGHT);
 // ============================================================
 const body = document.body;
 body.classList.toggle('standalone', isStandalone());
-let touchLayout = loadTouchLayout();
-body.classList.toggle('touch-overlay', touchLayout === 'overlay');
+initButtons(loadTouchLayout(), () => resize());
 
 async function fullscreen() {
   const result = await toggleFullscreen();
@@ -66,12 +67,14 @@ game.options = {
   fullscreen: isFullscreen,
   toggleFullscreen: fullscreen,
   hasTouch: () => body.classList.contains('touch'),
-  touchLayout: () => touchLayout,
+  touchLayout: buttonLayout,
+  // Neben dem Bild → überlagert → ausgeblendet → …
   toggleTouchLayout() {
-    touchLayout = touchLayout === 'side' ? 'overlay' : 'side';
-    saveTouchLayout(touchLayout);
-    body.classList.toggle('touch-overlay', touchLayout === 'overlay');
-    resize();
+    const order = ['side', 'overlay', 'hidden'];
+    const next = order[(order.indexOf(buttonLayout()) + 1) % order.length];
+    saveTouchLayout(next);
+    if (next === 'hidden' && !gamepadConnected()) game.showToast(t('set.hiddenNeedsPad'));
+    setButtonLayout(next);
   },
 };
 
@@ -134,7 +137,7 @@ function resize() {
   if (body.classList.contains('touch')) {
     canvas.style.width = canvas.style.height = '0px';  // damit das alte Bild die Messung nicht verfälscht
     let fit;
-    if (matchMedia('(orientation: portrait)').matches && touchLayout === 'side') {
+    if (matchMedia('(orientation: portrait)').matches && buttonLayout() === 'side' && !buttonsHidden()) {
       // Hochformat: Bild über die volle Breite, darunter Steuerung und Hinweis
       const app = document.querySelector('.app');
       const cs = getComputedStyle(app);
@@ -180,8 +183,13 @@ const MAX_STEPS = 5;  // falls der Tab hängt: nicht hunderte Schritte nachholen
 let last = performance.now();
 let acc = 0;
 function loop(now) {
-  acc += Math.min((now - last) / 1000, MAX_STEPS * STEP);
+  const frameDt = Math.min((now - last) / 1000, MAX_STEPS * STEP);
+  acc += frameDt;
   last = now;
+  // Controller abfragen (die Gamepad-API meldet sich nicht von selbst, man muss nachsehen)
+  const padMode = game.state === 'run' || game.state === 'ready' ? 'play' : game.state === 'name' ? 'name' : 'menu';
+  pollGamepad(frameDt, padMode, onKeyDown, () => game.showToast(t('pad.connected')), markGamepadUse);
+  applyButtons();  // ändert nur etwas, wenn sich der Zustand wirklich ändert (z. B. Controller abgezogen)
   while (acc >= STEP) {
     game.update(STEP);
     acc -= STEP;
