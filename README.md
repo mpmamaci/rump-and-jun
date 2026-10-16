@@ -70,10 +70,18 @@ Hinweis: Per Doppelklick auf `index.html` läuft das Spiel nicht. Browser laden 
 | ← → / A D | laufen |
 | Leertaste / W / ↑ | springen (länger halten = höher) |
 | Esc / P | Pause |
+| F | Vollbild |
 | R | Neustart |
 | M | Ton an/aus |
 
-Auf dem Handy: ◀ ▶ zum Laufen, ▲ zum Springen und II für die Pause. Menüpunkte lassen sich antippen.
+### Handy & Tablet
+
+- **Steuerung:** ‹ › zum Laufen, ⌃ zum Springen und II für die Pause. Menüpunkte lassen sich antippen.
+- **Tasten-Anordnung:** Standardmäßig liegen die Buttons **neben** dem Spielbild (im Hochformat darunter) und verdecken nie die Spielfigur. Unter *Einstellungen → Tasten* kannst du auf **überlagert** umstellen. Dann wird das Bild größer und die Buttons liegen halbdurchsichtig darüber.
+- **Vollbild:** über den Button ⛶ oder *Einstellungen → Vollbild*, am Desktop mit der Taste **F**. Das funktioniert auf Android, auf dem iPad und am Desktop.
+- **iPhone:** Safari erlaubt Webseiten kein Vollbild. Tippe stattdessen auf *Teilen → Zum Home-Bildschirm* und starte das Spiel über das neue Symbol, dann läuft es wie eine App ohne Browserleisten. Das Spiel zeigt diesen Hinweis auch selbst an.
+
+Das App-Symbol wird aus dem Spieler-Sprite erzeugt (`npm run icons` → `assets/icons/`).
 
 ## Projektstruktur
 

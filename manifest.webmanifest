@@ -1,0 +1,17 @@
+{
+  "name": "Jump & Run – Das endlose Pixel-Abenteuer",
+  "short_name": "Jump & Run",
+  "description": "Endloses Pixel-Art-Jump-and-Run",
+  "lang": "de",
+  "start_url": ".",
+  "scope": ".",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#12141f",
+  "theme_color": "#12141f",
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

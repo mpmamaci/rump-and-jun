@@ -27,7 +27,7 @@ const NAME_RE = /^[a-z0-9][a-z0-9-]{0,40}$/;
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.png': 'image/png',
-  '.svg': 'image/svg+xml', '.md': 'text/markdown; charset=utf-8', '.ico': 'image/x-icon',
+  '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json', '.md': 'text/markdown; charset=utf-8', '.ico': 'image/x-icon',
 };
 
 async function readBody(req, limit = 2_000_000) {

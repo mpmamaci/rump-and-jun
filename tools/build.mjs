@@ -12,7 +12,7 @@
 // ============================================================
 import { build } from 'esbuild';
 import { execFileSync } from 'node:child_process';
-import { readFile, writeFile, mkdir, rm, readdir, stat } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, rm, readdir, stat, copyFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -56,21 +56,28 @@ html = html
 if (!html.includes(jsFile) || !html.includes(cssFile)) throw new Error('index.html: Skript oder Stylesheet nicht gefunden');
 await writeFile(path.join(DIST, 'index.html'), html + '\n');
 
-// 5) Assets kopieren – JSON dabei minifizieren
-async function copyJsonTree(srcDir) {
+// 5) Assets kopieren – JSON minifizieren, Bilder (App-Symbole) unverändert
+const minifyJson = async src => JSON.stringify(JSON.parse(await readFile(src, 'utf8')));
+async function copyAssets(srcDir) {
   let count = 0;
   for (const entry of await readdir(srcDir, { withFileTypes: true })) {
     const src = path.join(srcDir, entry.name);
-    if (entry.isDirectory()) { count += await copyJsonTree(src); continue; }
-    if (!entry.name.endsWith('.json')) continue;
+    if (entry.isDirectory()) { count += await copyAssets(src); continue; }
     const dest = path.join(DIST, rel(src));
-    await mkdir(path.dirname(dest), { recursive: true });
-    await writeFile(dest, JSON.stringify(JSON.parse(await readFile(src, 'utf8'))));
+    if (entry.name.endsWith('.json')) {
+      await mkdir(path.dirname(dest), { recursive: true });
+      await writeFile(dest, await minifyJson(src));
+    } else if (entry.name.endsWith('.png')) {
+      await mkdir(path.dirname(dest), { recursive: true });
+      await copyFile(src, dest);
+    } else continue;
     count++;
   }
   return count;
 }
-const assetCount = await copyJsonTree(path.join(ROOT, 'assets'));
+const assetCount = await copyAssets(path.join(ROOT, 'assets'));
+// Web-App-Manifest (Home-Bildschirm / Vollbild)
+await writeFile(path.join(DIST, 'manifest.webmanifest'), await minifyJson(path.join(ROOT, 'manifest.webmanifest')));
 
 // 6) Zusammenfassung
 async function dirSize(dir) {

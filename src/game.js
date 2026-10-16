@@ -46,6 +46,8 @@ export class Game {
     this.options = {
       sound: () => true, setSound() {}, music: () => true, setMusic() {},
       skin: () => '', nextSkin() {},
+      fullscreen: () => false, toggleFullscreen() {},
+      hasTouch: () => false, touchLayout: () => 'side', toggleTouchLayout() {},
     };
     this.openTitle();
   }
@@ -65,7 +67,7 @@ export class Game {
     const back = () => (returnTo === 'title' ? this.openTitleMenuOnly() : this.openPause());
     const o = this.options;
     this.state = 'settings';
-    this.menu = createMenu('settings', 100, [
+    this.menu = createMenu('settings', 76, [
       { label: () => 'SOUNDEFFEKTE: ' + (o.sound() ? 'AN' : 'AUS'), action: () => o.setSound(!o.sound()) },
       { label: () => 'MUSIK: ' + (o.music() ? 'AN' : 'AUS'), action: () => o.setMusic(!o.music()) },
       { label: () => 'SKIN: ' + (o.skin() || 'STANDARD'), action: () => o.nextSkin() },
@@ -73,8 +75,13 @@ export class Game {
       returnTo === 'title'
         ? { label: () => `TEMPO: ${this.tempo.name} (PUNKTE ×${this.tempo.points})`, action: () => this.cycleTempo() }
         : { label: () => `TEMPO: ${this.tempo.name} (NUR IM MENÜ)`, action: () => {} },
+      { label: () => 'VOLLBILD: ' + (o.fullscreen() ? 'AN' : 'AUS'), action: () => o.toggleFullscreen() },
+      o.hasTouch() && {
+        label: () => 'TASTEN: ' + (o.touchLayout() === 'side' ? 'NEBEN DEM BILD' : 'ÜBERLAGERT'),
+        action: () => o.toggleTouchLayout(),
+      },
       { label: 'ZURÜCK', action: back },
-    ], back);
+    ].filter(Boolean), back);
   }
 
   // zurück zum Titelmenü, ohne die Hintergrund-Welt neu zu bauen

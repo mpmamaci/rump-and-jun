@@ -8,6 +8,8 @@ import { loadFont } from './render/font.js';
 import { unlockAudio, playSfx, startMusic, stopMusic, setSong, setTempo, audioSettings, setSound, setMusic } from './audio/audio.js';
 import { SONGS } from './data/music.js';
 import { initTouch } from './ui/touch.js';
+import { toggleFullscreen, isFullscreen, isStandalone, onFullscreenChange } from './ui/fullscreen.js';
+import { loadTouchLayout, saveTouchLayout } from './storage/touch-layout.js';
 
 const canvas = document.getElementById('game');
 const frame = document.getElementById('game-frame');
@@ -25,6 +27,22 @@ await setSkin(loadSkinChoice()).catch(() => setSkin(''));
 
 const game = new Game(VIEW_WIDTH, VIEW_HEIGHT);
 
+// ============================================================
+//  VOLLBILD & TOUCH-LAYOUT
+// ============================================================
+const body = document.body;
+body.classList.toggle('standalone', isStandalone());
+let touchLayout = loadTouchLayout();
+body.classList.toggle('touch-overlay', touchLayout === 'overlay');
+
+async function fullscreen() {
+  const result = await toggleFullscreen();
+  // iPhone: Browser erlaubt kein Vollbild → erklären, wie es als App geht
+  if (result === 'unsupported') document.getElementById('fullscreen-hint').showModal();
+}
+// Klick (nicht pointerdown) – nur dann erlaubt der Browser das Vollbild
+document.getElementById('btn-fullscreen').addEventListener('click', fullscreen);
+
 game.sound = playSfx;
 game.options = {
   sound: () => audioSettings.sound, setSound,
@@ -37,10 +55,22 @@ game.options = {
     const next = order[(order.indexOf(getActiveSkin()) + 1) % order.length];
     saveSkinChoice(await setSkin(next));
   },
+  fullscreen: isFullscreen,
+  toggleFullscreen: fullscreen,
+  hasTouch: () => body.classList.contains('touch'),
+  touchLayout: () => touchLayout,
+  toggleTouchLayout() {
+    touchLayout = touchLayout === 'side' ? 'overlay' : 'side';
+    saveTouchLayout(touchLayout);
+    body.classList.toggle('touch-overlay', touchLayout === 'overlay');
+    resize();
+  },
 };
 
 function onKeyDown(code, key, repeat) {
   unlockAudio();
+  // F: Vollbild (außer bei der Namenseingabe – da ist F ein Buchstabe)
+  if (code === 'KeyF' && !repeat && key && game.state !== 'name') { fullscreen(); return; }
   if (game.handleKey(code, key, repeat)) return;
   // M: Ton an/aus (Musik und Effekte)
   if (code === 'KeyM' && !repeat) {
@@ -52,8 +82,9 @@ initInput({ onKeyDown });
 initTouch(document, onKeyDown);
 addEventListener('pointerdown', unlockAudio);
 
-// Antippen/Klicken ins Spielbild – für Menüs
-canvas.addEventListener('pointerdown', e => {
+// Antippen/Klicken ins Spielbild – für Menüs.
+// 'click' statt 'pointerdown': nur so darf der Menüpunkt „Vollbild“ das Vollbild auch per Finger starten.
+canvas.addEventListener('click', e => {
   const r = canvas.getBoundingClientRect();
   game.handleTap((e.clientX - r.left) * VIEW_WIDTH / r.width, (e.clientY - r.top) * VIEW_HEIGHT / r.height);
 });
@@ -88,6 +119,28 @@ window.game = game;
 //  SKALIERUNG – immer ein ganzzahliges Vielfaches, damit Pixel scharf bleiben
 // ============================================================
 function resize() {
+  // Touch-Geräte: Das CSS-Raster gibt dem Spielbild seinen Platz (neben/unter den Buttons),
+  // wir füllen ihn so groß wie möglich aus.
+  if (body.classList.contains('touch')) {
+    canvas.style.width = canvas.style.height = '0px';  // damit das alte Bild die Messung nicht verfälscht
+    let fit;
+    if (matchMedia('(orientation: portrait)').matches && touchLayout === 'side') {
+      // Hochformat: Bild über die volle Breite, darunter Steuerung und Hinweis
+      const app = document.querySelector('.app');
+      const cs = getComputedStyle(app);
+      const gap = parseFloat(cs.rowGap) || 0;
+      const pads = Math.max(...[...document.querySelectorAll('.touch-pad')].map(el => el.offsetHeight));
+      const hint = document.querySelector('.rotate-hint').offsetHeight;
+      const innerW = app.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      const innerH = app.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - pads - hint - 2 * gap;
+      fit = Math.min(innerW / VIEW_WIDTH, innerH / VIEW_HEIGHT);
+    } else {
+      fit = Math.min(frame.clientWidth / VIEW_WIDTH, frame.clientHeight / VIEW_HEIGHT);
+    }
+    canvas.style.width = Math.floor(VIEW_WIDTH * fit) + 'px';
+    canvas.style.height = Math.floor(VIEW_HEIGHT * fit) + 'px';
+    return;
+  }
   const app = document.querySelector('.app');
   const px = (el, prop) => parseFloat(getComputedStyle(el)[prop]) || 0;
   // Platz, den Tasten-Hinweise & Abstände brauchen (auf kleinen Handys ausgeblendet)
@@ -99,13 +152,15 @@ function resize() {
   // Desktop: ganzzahlig in echten Gerätepixeln → perfekt scharfe Pixel.
   // Touch-Geräte: ganze Fläche nutzen – auf kleinen Bildschirmen zählt die Größe mehr.
   const dpr = devicePixelRatio || 1;
-  const touch = document.body.classList.contains('touch');
-  const scale = touch || fit * dpr < 1 ? fit : Math.floor(fit * dpr) / dpr;
+  const scale = fit * dpr < 1 ? fit : Math.floor(fit * dpr) / dpr;
   canvas.style.width = VIEW_WIDTH * scale + 'px';
   canvas.style.height = VIEW_HEIGHT * scale + 'px';
   frame.style.setProperty('--scale', scale);
 }
 addEventListener('resize', resize);
+addEventListener('orientationchange', () => setTimeout(resize, 150));
+visualViewport?.addEventListener('resize', resize);
+onFullscreenChange(() => setTimeout(resize, 50));
 resize();
 
 // ============================================================
