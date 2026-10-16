@@ -1,5 +1,5 @@
 // Gewählte Tempo-Stufe im Browser merken
-const KEY = 'jump-and-run.tempo';
+const KEY = 'rump-and-jun.tempo';
 
 export function loadTempo(max) {
   try {

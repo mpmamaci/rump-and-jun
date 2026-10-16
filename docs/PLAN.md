@@ -1,4 +1,4 @@
-# Spielplan: Endless Jump & Run
+# Spielplan: Rump & Jun (Endless Jump and Run)
 
 > Lebendes Dokument. Wir passen es gemeinsam an, wenn sich Ideen ändern.
 

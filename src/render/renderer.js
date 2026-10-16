@@ -406,9 +406,9 @@ function drawTitle(ctx, W, H, game, time) {
   ctx.fillStyle = C.k; ctx.globalAlpha = 0.45; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1;
   // Logo mit leichtem Wippen
   const bob = R(Math.sin(time * 2) * 2);
-  drawText(ctx, 'JUMP', W / 2 - 16, 36 + bob, { scale: 5, align: 'right', color: C.w, shadow: C.r });
+  drawText(ctx, 'RUMP', W / 2 - 16, 36 + bob, { scale: 5, align: 'right', color: C.w, shadow: C.r });
   drawText(ctx, '&', W / 2, 44 + bob, { scale: 3, align: 'center', color: C.q, shadow: C.o });
-  drawText(ctx, 'RUN', W / 2 + 16, 36 + bob, { scale: 5, color: C.w, shadow: C.r });
+  drawText(ctx, 'JUN', W / 2 + 16, 36 + bob, { scale: 5, color: C.w, shadow: C.r });
   drawText(ctx, 'DAS ENDLOSE PIXEL-ABENTEUER', W / 2, 88, { align: 'center', color: C.a });
   // kleiner Held, der vor dem Logo läuft
   drawSprite(ctx, 'player', 'run', time, W / 2 - 8, 110);

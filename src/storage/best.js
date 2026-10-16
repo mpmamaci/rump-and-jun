@@ -1,5 +1,5 @@
 // Persönlicher Rekord im Browser. Wird in M5 durch das Leaderboard ersetzt.
-const KEY = 'jump-and-run.best';
+const KEY = 'rump-and-jun.best';
 
 export function loadBest() {
   try { return Number(localStorage.getItem(KEY)) || 0; } catch { return 0; }

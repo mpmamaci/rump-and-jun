@@ -11,7 +11,7 @@ export const MAX_ENTRIES = 10;
 const sortEntries = list => list.sort((a, b) => b.score - a.score || b.meters - a.meters);
 
 export class LocalStore {
-  constructor(key = 'jump-and-run.leaderboard') {
+  constructor(key = 'rump-and-jun.leaderboard') {
     this.key = key;
   }
 

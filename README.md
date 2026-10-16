@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="assets/icons/icon-192.png" alt="Jump & Run Icon" width="96" height="96">
+<img src="assets/icons/icon-192.png" alt="Rump & Jun Icon" width="96" height="96">
 
-# Jump & Run
+# Rump & Jun
 
 **Ein endloses Pixel-Art-Jump-and-Run für den Browser.**
 Die Strecke scrollt von selbst, wird immer schneller und hört nie auf. Wie weit kommst du?
@@ -33,7 +33,7 @@ Die Strecke scrollt von selbst, wird immer schneller und hört nie auf. Wie weit
 
 ## Über das Spiel
 
-Jump & Run verbindet ein klassisches Jump and Run mit der Endlos-Idee von *The Impossible Game*. Du läufst, springst und kletterst durch eine Welt, die beim Spielen entsteht, während dich der linke Bildrand vor sich hertreibt.
+Rump & Jun verbindet ein klassisches Jump and Run mit der Endlos-Idee von *The Impossible Game*. Du läufst, springst und kletterst durch eine Welt, die beim Spielen entsteht, während dich der linke Bildrand vor sich hertreibt.
 
 - 🏃 **Endlose Strecke** aus 37 handgebauten Abschnitten in 5 Schwierigkeitsstufen. Das Tempo steigt mit jedem Meter.
 - 🧗 **Parkour** mit Wandsprung, Wandrutschen und Sprungfedern.
@@ -71,8 +71,8 @@ Jump & Run verbindet ein klassisches Jump and Run mit der Endlos-Idee von *The I
 Voraussetzung ist [Node.js](https://nodejs.org) ab Version 18. Zum Spielen und Entwickeln werden keine weiteren Pakete benötigt.
 
 ```bash
-git clone https://github.com/mpmamaci/jump-and-run.git
-cd jump-and-run
+git clone https://github.com/mpmamaci/rump-and-jun.git
+cd rump-and-jun
 npm run dev
 ```
 
@@ -184,7 +184,7 @@ Der Build
 ## Projektstruktur
 
 ```
-jump-and-run/
+rump-and-jun/
 ├── index.html               Einstiegsseite
 ├── manifest.webmanifest     Web-App-Manifest (Home-Bildschirm, Vollbild)
 ├── styles/main.css          Seiten- und Touch-Layout

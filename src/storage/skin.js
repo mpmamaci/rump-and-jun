@@ -1,5 +1,5 @@
 // Gewählten Skin im Browser merken ('' = Standard)
-const KEY = 'jump-and-run.skin';
+const KEY = 'rump-and-jun.skin';
 
 export function loadSkinChoice() {
   try { return localStorage.getItem(KEY) || ''; } catch { return ''; }

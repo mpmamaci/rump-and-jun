@@ -9,11 +9,11 @@ let master, sfxBus, musicBus, noiseBuffer;
 const settings = loadSettings();
 
 function loadSettings() {
-  try { return { sound: true, music: true, ...JSON.parse(localStorage.getItem('jump-and-run.settings') || '{}') }; }
+  try { return { sound: true, music: true, ...JSON.parse(localStorage.getItem('rump-and-jun.settings') || '{}') }; }
   catch { return { sound: true, music: true }; }
 }
 function saveSettings() {
-  try { localStorage.setItem('jump-and-run.settings', JSON.stringify(settings)); } catch { /* egal */ }
+  try { localStorage.setItem('rump-and-jun.settings', JSON.stringify(settings)); } catch { /* egal */ }
 }
 export const audioSettings = settings;
 
