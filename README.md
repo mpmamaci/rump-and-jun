@@ -58,6 +58,7 @@ Rump & Jun is an endless, auto-scrolling pixel-art platformer. You run, jump and
 - 👾 **4 enemy types** (walkers, jumpers, flyers and diving hawks), plus moving and crumbling platforms.
 - ⚡ **Power-ups:** double jump, shield, slow motion and the rare **rocket**, which carries you invincibly 500+ meters ahead.
 - 🌄 **4 biomes** that change every 500 m (meadow, crystal cave, castle at sunset, starry night), each with its own music.
+- 🦊 **The fox:** when you die, there is a 10% chance a fox shows up and challenges you to tic-tac-toe. Beat him and he puts you back on your feet (once per run). Draw, lose or give up, and it's game over.
 - 🏆 **Scoring** from distance, coins and enemy combos, plus a local arcade-style **top-10 leaderboard**.
 - 🎚️ **Speed modes:** normal, fast and turbo, each with a score multiplier.
 - 📱 **Desktop, phone and tablet:** touch controls, fullscreen, and it can be installed to your home screen as an app.
@@ -217,6 +218,7 @@ rump-and-jun/
 │   ├── entities/            player, enemies, platforms, power-ups
 │   ├── render/              renderer, sprite loader, pixel font
 │   ├── audio/               synthesizer and music sequencer
+│   ├── fox/                 fox rescue: tic-tac-toe duel and fox AI
 │   ├── ui/                  menus, touch, fullscreen
 │   ├── data/                chunks, palette, biomes, songs
 │   └── storage/             best score, leaderboard, settings

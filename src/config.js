@@ -66,6 +66,14 @@ export const TEMPO_LEVELS = [
   { name: 'TURBO', speed: 1.5, points: 2, mark: '>>' },
 ];
 
+// Fuchs: rettet dich manchmal beim Tod – wenn du ihn im Tic-Tac-Toe schlägst
+export const FOX_CHANCE = 0.1;        // 10 % Chance pro Tod
+export const FOX_MAX_PER_RUN = 1;     // höchstens so oft pro Lauf
+export const FOX_WIN_CHANCE = 0.9;    // so oft nutzt der Fuchs eine Gewinnchance
+export const FOX_BLOCK_CHANCE = 0.65; // so oft blockt er deine Reihe – sonst wäre er unschlagbar
+export const FOX_THINK_TIME = 0.6;    // Bedenkzeit des Fuchses (Sekunden)
+export const FOX_RESCUE_INVUL = 2;    // Unverwundbarkeit nach der Rettung
+
 // Punkte
 export const POINTS_COIN = 10;
 export const POINTS_STOMP = 50;
