@@ -284,6 +284,11 @@ function drawHud(ctx, game, W) {
   const best = 'REKORD ' + game.best;
   panel(ctx, W - 14 - best.length * 6, 6, best.length * 6 + 8, 13);
   drawText(ctx, best, W - 10, 9, { align: 'right' });
+  if (game.tempo.points > 1) {
+    const tag = `${game.tempo.name} ×${game.tempo.points}`;
+    panel(ctx, W - 14 - tag.length * 6, 21, tag.length * 6 + 8, 13);
+    drawText(ctx, tag, W - 10, 24, { align: 'right', color: C.o });
+  }
 }
 
 function drawBanner(ctx, W, b) {
@@ -377,7 +382,8 @@ function drawTitle(ctx, W, H, game, time) {
   drawText(ctx, 'DAS ENDLOSE PIXEL-ABENTEUER', W / 2, 88, { align: 'center', color: C.a });
   // kleiner Held, der vor dem Logo läuft
   drawSprite(ctx, 'player', 'run', time, W / 2 - 8, 110);
-  drawText(ctx, 'REKORD ' + game.best, W / 2, 132, { align: 'center', color: C.y });
+  drawText(ctx, 'REKORD ' + game.best + (game.tempo.points > 1 ? `  ·  TEMPO ${game.tempo.name} ×${game.tempo.points}` : ''),
+    W / 2, 132, { align: 'center', color: C.y });
 
   drawMenu(ctx, W, game, time);
   drawText(ctx, '↑ ↓ WÄHLEN  ·  LEERTASTE / ANTIPPEN: OK', W / 2, H - 16, { align: 'center', color: C.s, shadow: C.k });
@@ -397,6 +403,9 @@ export function drawLeaderboard(ctx, W, entries, highlight, time, top) {
     const col = hl ? C.w : i === 0 ? C.q : C.s;
     drawText(ctx, String(i + 1), x0, y, { color: col });
     drawText(ctx, e ? e.name : '---', x0 + 24, y, { color: col, scale: 1 });
+    // Markierung für Läufe mit höherem Tempo: > SCHNELL, >> TURBO
+    const mark = e?.tempo === 'TURBO' ? '>>' : e?.tempo === 'SCHNELL' ? '>' : '';
+    if (mark) drawText(ctx, mark, x0 + 48, y, { color: C.o });
     drawText(ctx, e ? String(e.meters) : '', x0 + 150, y, { color: col, align: 'right' });
     drawText(ctx, e ? String(e.score) : '', x0 + 260, y, { color: col, align: 'right' });
   }

@@ -1,6 +1,6 @@
 import {
   TILE, ROWS, JUMP_BUFFER, DEATH_PAUSE, GENERATE_AHEAD, POINTS_COIN, POINTS_STOMP,
-  DOUBLEJUMP_TIME, SLOWMO_TIME, SLOWMO_FACTOR, HURT_INVUL, JUMP_SPEED, ZONE_METERS,
+  DOUBLEJUMP_TIME, SLOWMO_TIME, SLOWMO_FACTOR, HURT_INVUL, JUMP_SPEED, ZONE_METERS, TEMPO_LEVELS,
 } from './config.js';
 import { POWERUP_INFO } from './entities/powerup.js';
 import { createWorld, ensureGenerated, pruneBehind, updateCrumbling } from './world/world.js';
@@ -17,6 +17,7 @@ import { LocalStore, qualifies } from './storage/leaderboard.js';
 import { JUMP_KEYS } from './input.js';
 import { createMenu, menuKey, menuTap, labelOf } from './ui/menu.js';
 import { biomeForZone } from './data/biomes.js';
+import { loadTempo, saveTempo } from './storage/tempo.js';
 
 const NAME_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
@@ -35,6 +36,7 @@ export class Game {
     this.viewWidth = viewWidth;
     this.viewHeight = viewHeight;
     this.best = loadBest();
+    this.tempoIndex = loadTempo(TEMPO_LEVELS.length);
     this.store = store;
     this.leaderboard = [];
     this.lastName = 'AAA';
@@ -63,6 +65,10 @@ export class Game {
     this.menu = createMenu('settings', 100, [
       { label: () => 'SOUNDEFFEKTE: ' + (o.sound() ? 'AN' : 'AUS'), action: () => o.setSound(!o.sound()) },
       { label: () => 'MUSIK: ' + (o.music() ? 'AN' : 'AUS'), action: () => o.setMusic(!o.music()) },
+      // Tempo nur im Hauptmenü änderbar – sonst könnte man mitten im Lauf schummeln
+      returnTo === 'title'
+        ? { label: () => `TEMPO: ${this.tempo.name} (PUNKTE ×${this.tempo.points})`, action: () => this.cycleTempo() }
+        : { label: () => `TEMPO: ${this.tempo.name} (NUR IM MENÜ)`, action: () => {} },
       { label: 'ZURÜCK', action: back },
     ], back);
   }
@@ -139,7 +145,15 @@ export class Game {
 
   addShake(px) { this.shake = Math.max(this.shake, px); }
 
-  get score() { return this.meters + this.coins * POINTS_COIN + this.stompPoints; }
+  get tempo() { return TEMPO_LEVELS[this.tempoIndex]; }
+
+  cycleTempo() {
+    this.tempoIndex = (this.tempoIndex + 1) % TEMPO_LEVELS.length;
+    saveTempo(this.tempoIndex);
+  }
+
+  // Höheres Tempo = mehr Punkte
+  get score() { return Math.round((this.meters + this.coins * POINTS_COIN + this.stompPoints) * this.tempo.points); }
 
   jump() {
     if (this.state === 'ready' || this.state === 'run') this.world.player.jumpBuffer = JUMP_BUFFER;
@@ -207,7 +221,7 @@ export class Game {
     this.lastName = name;
     const entry = {
       name, score: this.score, meters: this.meters, coins: this.coins,
-      combo: this.bestCombo, seed: this.seed, date: new Date().toISOString(),
+      combo: this.bestCombo, tempo: this.tempo.name, seed: this.seed, date: new Date().toISOString(),
     };
     this.state = 'board';
     this.boardTimer = 0;
@@ -220,6 +234,8 @@ export class Game {
   get worldSpeed() { return this.effects.slowmo > 0 ? SLOWMO_FACTOR : 1; }
 
   update(dt) {
+    // Tempo-Stufe: im Spiel läuft die ganze Simulation schneller
+    if (this.state === 'ready' || this.state === 'run') dt *= this.tempo.speed;
     const w = this.world;
     const p = w.player;
     this.time += dt;

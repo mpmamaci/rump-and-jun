@@ -3,7 +3,7 @@
 //  eine Liste von Punkten, ↑/↓ wählt, Leertaste/Enter bestätigt, Antippen geht auch.
 // ============================================================
 export const MENU_ITEM_H = 16;
-export const MENU_ITEM_W = 170;
+export const MENU_ITEM_W = 200;
 
 // Position der Menüpunkte – Renderer und Touch-Treffertest nutzen dieselben Werte
 export function menuLayout(menu, viewWidth) {

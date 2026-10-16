@@ -44,6 +44,14 @@ export const SLOWMO_TIME = 5;
 export const SLOWMO_FACTOR = 0.6;     // Welt läuft in Zeitlupe mit 60 % Tempo
 export const HURT_INVUL = 1.2;        // Unverwundbarkeit, nachdem das Schild gebrochen ist
 
+// Tempo-Stufen (Einstellungen): das ganze Spiel läuft schneller – dafür gibt es mehr Punkte.
+// Nur der Scroll allein ginge nicht: über MOVE_SPEED wäre das Spiel nicht mehr schaffbar.
+export const TEMPO_LEVELS = [
+  { name: 'NORMAL', speed: 1, points: 1, mark: '' },
+  { name: 'SCHNELL', speed: 1.25, points: 1.5, mark: '>' },
+  { name: 'TURBO', speed: 1.5, points: 2, mark: '>>' },
+];
+
 // Punkte
 export const POINTS_COIN = 10;
 export const POINTS_STOMP = 50;
