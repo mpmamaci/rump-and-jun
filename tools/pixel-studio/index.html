@@ -10,6 +10,13 @@
   <header class="topbar">
     <h1>Pixel-Studio</h1>
     <div class="group">
+      <label>Skin
+        <select id="skin-select"><option value="">Standard (geschützt)</option></select>
+      </label>
+      <input id="skin-new-name" placeholder="neuer skin" size="12" spellcheck="false">
+      <button id="skin-add">+ Skin</button>
+    </div>
+    <div class="group">
       <label>Sprite
         <select id="sprite-select"><option value="">– laden –</option></select>
       </label>
@@ -20,6 +27,8 @@
       <button id="btn-resize">Größe ändern</button>
     </div>
     <div class="group">
+      <span id="source-info" class="source-info"></span>
+      <button id="btn-reset" hidden title="Skin-Version löschen, Standardgrafik gilt wieder">↺ Standard wiederherstellen</button>
       <button id="btn-save" class="primary">Speichern</button>
       <span id="status" class="status"></span>
     </div>
@@ -80,7 +89,7 @@
       <h2><span class="step">3</span> Vorschau</h2>
       <div class="canvas-wrap preview-bg"><canvas id="preview"></canvas></div>
       <label><input id="preview-flip" type="checkbox"> gespiegelt</label>
-      <p class="hint">Gespeichert wird nach <code>assets/sprites/&lt;name&gt;.json</code>. Das Spiel lädt die Datei beim nächsten Neuladen.</p>
+      <p class="hint">Die Standardgrafiken sind geschützt. Gespeichert wird in einen <b>Skin</b> unter <code>assets/skins/&lt;skin&gt;/</code>. Im Spiel wählst du den Skin unter <i>Einstellungen</i>, und „Standard“ stellt jederzeit alles wieder her.</p>
       <details>
         <summary>Tastenkürzel</summary>
         <ul class="keys">

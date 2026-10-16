@@ -2,18 +2,26 @@
 //  DEV-SERVER – liefert das Spiel aus und lässt das Pixel-Studio speichern.
 //  Ohne Abhängigkeiten, nur Node.js.
 //
-//  Start:  npm run dev   (oder: node tools/dev-server.mjs)
+//  Die Standardgrafiken in assets/sprites/ sind geschützt: Das Studio speichert
+//  ausschließlich in Skins unter assets/skins/<skin>/<sprite>.json.
+//
+//  Start:  npm run dev       – nur auf diesem Computer erreichbar
+//          npm run dev:lan   – auch im Heimnetz (Handy, iPad) erreichbar
 //  Spiel:        http://localhost:8765
 //  Pixel-Studio: http://localhost:8765/tools/pixel-studio/
 // ============================================================
 import http from 'node:http';
-import { readFile, writeFile, stat } from 'node:fs/promises';
+import { readFile, writeFile, stat, mkdir, readdir, unlink, rmdir } from 'node:fs/promises';
 import path from 'node:path';
+import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SPRITES_DIR = path.join(ROOT, 'assets', 'sprites');
+const SKINS_DIR = path.join(ROOT, 'assets', 'skins');
 const PORT = Number(process.env.PORT) || 8765;
+// --lan: auf allen Netzwerk-Schnittstellen lauschen, damit Geräte im WLAN zugreifen können
+const LAN = process.argv.includes('--lan');
 const NAME_RE = /^[a-z0-9][a-z0-9-]{0,40}$/;
 
 const MIME = {
@@ -49,20 +57,46 @@ function validateSprite(s, name) {
   return null;
 }
 
-async function saveSprite(name, body) {
+async function readJson(file) {
+  return JSON.parse(await readFile(file, 'utf8'));
+}
+
+// assets/skins/index.json neu aufbauen: { "skins": { "<skin>": ["player", ...] } }
+async function rebuildSkinIndex() {
+  await mkdir(SKINS_DIR, { recursive: true });
+  const skins = {};
+  for (const d of await readdir(SKINS_DIR, { withFileTypes: true })) {
+    if (!d.isDirectory() || !NAME_RE.test(d.name)) continue;
+    const files = (await readdir(path.join(SKINS_DIR, d.name))).filter(f => f.endsWith('.json'));
+    if (files.length) skins[d.name] = files.map(f => f.slice(0, -5)).sort();
+  }
+  await writeFile(path.join(SKINS_DIR, 'index.json'), JSON.stringify({ skins }, null, 2) + '\n');
+  return skins;
+}
+
+async function saveSkinSprite(skin, name, body) {
   const sprite = JSON.parse(body);
   const err = validateSprite(sprite, name);
   if (err) return { status: 400, data: { error: err } };
 
-  await writeFile(path.join(SPRITES_DIR, name + '.json'), formatSprite(sprite));
-  const manifestPath = path.join(SPRITES_DIR, 'index.json');
-  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-  if (!manifest.sprites.includes(name)) {
-    manifest.sprites.push(name);
-    manifest.sprites.sort();
-    await writeFile(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
+  // Ersetzt der Skin eine Standardgrafik, muss die Größe passen – sonst sitzt sie im Spiel falsch
+  const def = await readJson(path.join(SPRITES_DIR, name + '.json')).catch(() => null);
+  if (def && (def.width !== sprite.width || def.height !== sprite.height)) {
+    return { status: 400, data: { error: `Größe muss wie beim Standard ${def.width}×${def.height} sein` } };
   }
-  return { status: 200, data: { ok: true, name } };
+
+  await mkdir(path.join(SKINS_DIR, skin), { recursive: true });
+  await writeFile(path.join(SKINS_DIR, skin, name + '.json'), formatSprite(sprite));
+  const skins = await rebuildSkinIndex();
+  return { status: 200, data: { ok: true, skin, name, skins } };
+}
+
+// Skin-Version löschen → im Spiel gilt wieder die Standardgrafik
+async function resetSkinSprite(skin, name) {
+  await unlink(path.join(SKINS_DIR, skin, name + '.json')).catch(() => null);
+  await rmdir(path.join(SKINS_DIR, skin)).catch(() => null);  // nur wenn leer
+  const skins = await rebuildSkinIndex();
+  return { status: 200, data: { ok: true, skins } };
 }
 
 // Lesbares JSON: jede Pixelzeile in einer eigenen Zeile (gut für git diff)
@@ -82,14 +116,24 @@ const server = http.createServer(async (req, res) => {
     const url = new URL(req.url, 'http://localhost');
 
     if (url.pathname === '/api/ping') return send(200, { ok: true });
-    const m = url.pathname.match(/^\/api\/sprites\/([^/]+)$/);
-    if (m && req.method === 'POST') {
-      const name = decodeURIComponent(m[1]);
-      if (!NAME_RE.test(name)) return send(400, { error: 'Name nur a–z, 0–9 und -' });
-      const { status, data } = await saveSprite(name, await readBody(req));
-      console.log(`Sprite gespeichert: ${name}`);
-      return send(status, data);
+    if (url.pathname === '/api/skins' && req.method === 'GET') return send(200, { skins: await rebuildSkinIndex() });
+
+    const m = url.pathname.match(/^\/api\/skins\/([^/]+)\/sprites\/([^/]+)$/);
+    if (m) {
+      const skin = decodeURIComponent(m[1]), name = decodeURIComponent(m[2]);
+      if (!NAME_RE.test(skin) || !NAME_RE.test(name)) return send(400, { error: 'Namen nur a–z, 0–9 und -' });
+      if (req.method === 'POST') {
+        const { status, data } = await saveSkinSprite(skin, name, await readBody(req));
+        if (status === 200) console.log(`Skin „${skin}“: ${name} gespeichert`);
+        return send(status, data);
+      }
+      if (req.method === 'DELETE') {
+        console.log(`Skin „${skin}“: ${name} auf Standard zurückgesetzt`);
+        const { status, data } = await resetSkinSprite(skin, name);
+        return send(status, data);
+      }
     }
+    if (url.pathname.startsWith('/api/')) return send(404, { error: 'unbekannt' });
     if (req.method !== 'GET' && req.method !== 'HEAD') return send(405, { error: 'nicht erlaubt' });
 
     // Statische Dateien – nur innerhalb des Projekts
@@ -106,7 +150,24 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, '127.0.0.1', () => {
+// IPv4-Adressen dieses Computers im lokalen Netz (z. B. 192.168.178.23)
+function lanAddresses() {
+  return Object.values(os.networkInterfaces()).flat()
+    .filter(i => i && i.family === 'IPv4' && !i.internal)
+    .map(i => i.address);
+}
+
+server.listen(PORT, LAN ? '0.0.0.0' : '127.0.0.1', () => {
   console.log(`Spiel:        http://localhost:${PORT}`);
   console.log(`Pixel-Studio: http://localhost:${PORT}/tools/pixel-studio/`);
+  if (!LAN) return;
+  const ips = lanAddresses();
+  if (!ips.length) return console.log('\nKein Netzwerk gefunden – ist der Computer im WLAN?');
+  console.log('\nIm Heimnetz (Handy/iPad im selben WLAN):');
+  for (const ip of ips) {
+    console.log(`  Spiel:        http://${ip}:${PORT}`);
+    console.log(`  Pixel-Studio: http://${ip}:${PORT}/tools/pixel-studio/`);
+  }
+  console.log('\nHinweis: Jeder im selben WLAN kann das Spiel öffnen und Skins speichern.');
+  console.log('Nur im eigenen Heimnetz nutzen, nicht in öffentlichen WLANs.');
 });

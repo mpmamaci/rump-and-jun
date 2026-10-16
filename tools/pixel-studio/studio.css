@@ -32,6 +32,8 @@ button:hover { border-color: var(--accent-2); }
 button.active { background: var(--accent-2); border-color: var(--accent-2); color: #0b1020; }
 button.primary { background: var(--accent); border-color: var(--accent); font-weight: 600; }
 .status { color: var(--muted); min-width: 120px; }
+.source-info { color: var(--accent-2); font-size: 13px; }
+[hidden] { display: none !important; }
 .status.ok { color: #7cfc7c; }
 .status.err { color: #ff8a9a; }
 

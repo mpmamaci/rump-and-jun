@@ -43,7 +43,10 @@ export class Game {
     this.store.load().then(list => { this.leaderboard = list; });
     this.sound = () => {};   // wird in main.js mit dem Audio-System verbunden
     // Ton-Schalter – main.js verbindet sie mit dem Audio-System
-    this.options = { sound: () => true, setSound() {}, music: () => true, setMusic() {} };
+    this.options = {
+      sound: () => true, setSound() {}, music: () => true, setMusic() {},
+      skin: () => '', nextSkin() {},
+    };
     this.openTitle();
   }
 
@@ -65,6 +68,7 @@ export class Game {
     this.menu = createMenu('settings', 100, [
       { label: () => 'SOUNDEFFEKTE: ' + (o.sound() ? 'AN' : 'AUS'), action: () => o.setSound(!o.sound()) },
       { label: () => 'MUSIK: ' + (o.music() ? 'AN' : 'AUS'), action: () => o.setMusic(!o.music()) },
+      { label: () => 'SKIN: ' + (o.skin() || 'STANDARD'), action: () => o.nextSkin() },
       // Tempo nur im Hauptmenü änderbar – sonst könnte man mitten im Lauf schummeln
       returnTo === 'title'
         ? { label: () => `TEMPO: ${this.tempo.name} (PUNKTE ×${this.tempo.points})`, action: () => this.cycleTempo() }

@@ -393,30 +393,115 @@ function render() {
   renderPixels(); renderAnimSelect(); renderFrames();
 }
 
+// ---------------- Skins ----------------
+// Standardgrafiken (assets/sprites/) sind geschützt. Gespeichert wird immer in einen Skin
+// (assets/skins/<skin>/). Ein Skin enthält nur die Sprites, die er verändert.
+let defaults = [];   // Namen der Standard-Sprites
+let skins = {};      // { skinName: [spriteNamen] }
+let skin = '';       // gewählter Skin ('' = Standard, nur ansehen)
+let source = 'neu';  // woher das geladene Sprite stammt: 'standard' | 'skin' | 'neu'
+
+const inSkin = name => !!skin && (skins[skin] || []).includes(name);
+
 async function loadManifest() {
   try {
-    const res = await fetch('/assets/sprites/index.json', { cache: 'no-store' });
-    const { sprites } = await res.json();
-    const sel = $('#sprite-select');
-    sel.innerHTML = '<option value="">– laden –</option>';
-    for (const name of sprites) {
-      const o = document.createElement('option');
-      o.value = o.textContent = name;
-      sel.appendChild(o);
-    }
+    defaults = (await (await fetch('/assets/sprites/index.json', { cache: 'no-store' })).json()).sprites;
+    skins = (await (await fetch('/assets/skins/index.json', { cache: 'no-store' })).json()).skins || {};
   } catch { status('Sprite-Liste nicht gefunden', 'err'); }
+  renderSkinSelect();
+  renderSpriteSelect();
+}
+
+function renderSkinSelect() {
+  const sel = $('#skin-select');
+  sel.innerHTML = '<option value="">Standard (geschützt)</option>';
+  for (const name of Object.keys(skins).sort()) {
+    const o = document.createElement('option');
+    o.value = name; o.textContent = `Skin: ${name}`;
+    sel.appendChild(o);
+  }
+  if (skin && !skins[skin]) {  // neuer, noch leerer Skin
+    const o = document.createElement('option');
+    o.value = skin; o.textContent = `Skin: ${skin} (neu)`;
+    sel.appendChild(o);
+  }
+  sel.value = skin;
+}
+
+function renderSpriteSelect() {
+  const sel = $('#sprite-select');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">– laden –</option>';
+  const names = [...new Set([...defaults, ...(skins[skin] || [])])].sort();
+  for (const name of names) {
+    const o = document.createElement('option');
+    o.value = name;
+    o.textContent = inSkin(name) ? `★ ${name}` : name;  // ★ = in diesem Skin verändert
+    sel.appendChild(o);
+  }
+  sel.value = names.includes(current) ? current : '';
+}
+
+function updateSourceInfo() {
+  const info = $('#source-info');
+  const name = sprite.name;
+  if (source === 'skin') info.textContent = `„${name}“ aus Skin ${skin}`;
+  else if (source === 'standard') info.textContent = `„${name}“ – Standardgrafik`;
+  else info.textContent = 'neues Sprite';
+  $('#btn-reset').hidden = !(inSkin(name) && defaults.includes(name));
+  $('#btn-save').textContent = skin ? `In Skin „${skin}“ speichern` : 'Speichern (Skin wählen)';
+}
+
+async function loadSprite(name) {
+  const fromSkin = inSkin(name);
+  const url = fromSkin ? `/assets/skins/${skin}/${name}.json` : `/assets/sprites/${name}.json`;
+  sprite = await (await fetch(url, { cache: 'no-store' })).json();
+  sprite.fps ||= {};
+  source = fromSkin ? 'skin' : 'standard';
+  anim = Object.keys(sprite.animations)[0]; frameIndex = 0;
+  pixelUndo = [];
+  syncInputs(); resizeSketch(); render(); updateSourceInfo();
 }
 
 $('#sprite-select').addEventListener('change', async e => {
-  const name = e.target.value;
-  if (!name) return;
-  const res = await fetch(`/assets/sprites/${name}.json`, { cache: 'no-store' });
-  sprite = await res.json();
-  sprite.fps ||= {};
-  anim = Object.keys(sprite.animations)[0]; frameIndex = 0;
-  pixelUndo = [];
-  syncInputs(); resizeSketch(); render();
-  status(`„${name}“ geladen`);
+  if (!e.target.value) return;
+  await loadSprite(e.target.value);
+  status(`„${e.target.value}“ geladen`);
+});
+
+$('#skin-select').addEventListener('change', async e => {
+  skin = e.target.value;
+  renderSpriteSelect();
+  // gleiches Sprite in der Version des gewählten Skins (oder Standard) neu laden
+  if (defaults.includes(sprite.name) || inSkin(sprite.name)) await loadSprite(sprite.name);
+  updateSourceInfo();
+  status(skin ? `Skin „${skin}“ gewählt` : 'Standard gewählt – nur ansehen, Speichern braucht einen Skin');
+});
+
+$('#skin-add').addEventListener('click', () => {
+  const name = $('#skin-new-name').value.trim().toLowerCase();
+  if (!/^[a-z0-9][a-z0-9-]{0,40}$/.test(name)) return status('Skin-Name: nur a–z, 0–9 und -', 'err');
+  skin = name;
+  $('#skin-new-name').value = '';
+  renderSkinSelect(); renderSpriteSelect(); updateSourceInfo();
+  status(`Skin „${name}“ angelegt – wird beim ersten Speichern erstellt`, 'ok');
+});
+
+// Skin-Version löschen → die Standardgrafik gilt wieder
+$('#btn-reset').addEventListener('click', async () => {
+  const name = sprite.name;
+  if (!confirm(`„${name}“ im Skin „${skin}“ auf die Standardgrafik zurücksetzen?`)) return;
+  try {
+    const res = await fetch(`/api/skins/${skin}/sprites/${name}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || res.status);
+    skins = data.skins;
+    renderSkinSelect(); renderSpriteSelect();
+    await loadSprite(name);
+    status(`„${name}“ ist wieder Standard`, 'ok');
+  } catch (err) {
+    status('Zurücksetzen fehlgeschlagen (' + err.message + ')', 'err');
+  }
 });
 
 const readSize = () => [
@@ -430,8 +515,9 @@ $('#btn-new').addEventListener('click', () => {
   sprite = blankSprite($('#sprite-name').value.trim().toLowerCase() || 'neues-sprite', w, h);
   anim = 'default'; frameIndex = 0;
   $('#sprite-select').value = '';
+  source = 'neu';
   resizeSketch(); sctx.clearRect(0, 0, sketch.width, sketch.height);
-  render();
+  render(); updateSourceInfo();
   status('Neues Sprite');
 });
 
@@ -456,20 +542,24 @@ $('#btn-resize').addEventListener('click', () => {
 });
 
 $('#btn-save').addEventListener('click', async () => {
+  if (!skin) return status('Standardgrafiken sind geschützt – wähle oben einen Skin oder lege einen neuen an', 'err');
   const name = $('#sprite-name').value.trim().toLowerCase();
   if (!/^[a-z0-9][a-z0-9-]{0,40}$/.test(name)) return status('Name: nur a–z, 0–9 und -', 'err');
   sprite.name = name;
   try {
-    const res = await fetch(`/api/sprites/${name}`, {
+    const res = await fetch(`/api/skins/${skin}/sprites/${name}`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(sprite),
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || res.status);
-    status(`Gespeichert: assets/sprites/${name}.json`, 'ok');
-    await loadManifest();
+    skins = data.skins;
+    source = 'skin';
+    renderSkinSelect(); renderSpriteSelect();
     $('#sprite-select').value = name;
+    updateSourceInfo();
+    status(`Gespeichert in Skin „${skin}“: assets/skins/${skin}/${name}.json`, 'ok');
   } catch (err) {
-    status('Speichern fehlgeschlagen – läuft „npm run dev“? (' + err.message + ')', 'err');
+    status('Speichern fehlgeschlagen: ' + err.message, 'err');
   }
 });
 
@@ -487,7 +577,7 @@ addEventListener('keydown', e => {
 buildPalette();
 resizeSketch();
 render();
-loadManifest();
+loadManifest().then(updateSourceInfo);
 fetch('/api/ping').then(r => { if (!r.ok) throw 0; status('Bereit'); })
   .catch(() => status('Hinweis: Speichern geht nur mit „npm run dev“', 'err'));
 

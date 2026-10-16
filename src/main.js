@@ -2,7 +2,8 @@ import { VIEW_WIDTH, VIEW_HEIGHT, STEP, SCROLL_START, SCROLL_MAX, SLOWMO_FACTOR 
 import { Game } from './game.js';
 import { initInput } from './input.js';
 import { draw } from './render/renderer.js';
-import { loadSprites } from './render/assets.js';
+import { loadSprites, loadSkinList, setSkin, getActiveSkin } from './render/assets.js';
+import { loadSkinChoice, saveSkinChoice } from './storage/skin.js';
 import { loadFont } from './render/font.js';
 import { unlockAudio, playSfx, startMusic, stopMusic, setSong, setTempo, audioSettings, setSound, setMusic } from './audio/audio.js';
 import { SONGS } from './data/music.js';
@@ -18,6 +19,9 @@ ctx.imageSmoothingEnabled = false;
 // Erst alle eigenen Assets laden, dann starten
 ctx.fillStyle = '#1a1c2c'; ctx.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
 await Promise.all([loadSprites(), loadFont()]);
+// Skin: gespeicherte Wahl laden – gibt es den Skin nicht mehr, gilt Standard
+let skinNames = await loadSkinList();
+await setSkin(loadSkinChoice()).catch(() => setSkin(''));
 
 const game = new Game(VIEW_WIDTH, VIEW_HEIGHT);
 
@@ -25,6 +29,14 @@ game.sound = playSfx;
 game.options = {
   sound: () => audioSettings.sound, setSound,
   music: () => audioSettings.music, setMusic,
+  skin: getActiveSkin,
+  // Standard → Skin 1 → Skin 2 → … → Standard
+  async nextSkin() {
+    skinNames = await loadSkinList();
+    const order = ['', ...skinNames];
+    const next = order[(order.indexOf(getActiveSkin()) + 1) % order.length];
+    saveSkinChoice(await setSkin(next));
+  },
 };
 
 function onKeyDown(code, key, repeat) {

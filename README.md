@@ -30,6 +30,18 @@ npm run dev
 | Spiel | <http://localhost:8765> |
 | Pixel-Studio | <http://localhost:8765/tools/pixel-studio/> |
 
+### Auf Handy oder iPad testen
+
+```bash
+npm run dev:lan
+```
+
+Der Server zeigt dann die Adressen im Heimnetz an, zum Beispiel `http://192.168.178.23:8765`. Diese öffnest du auf dem Handy oder iPad im **selben WLAN**.
+
+- Beim ersten Start fragt macOS eventuell, ob `node` eingehende Verbindungen annehmen darf. Erlaube das.
+- Im Netzwerk-Modus kann jeder im selben WLAN das Spiel öffnen und Skins speichern. Nutze ihn deshalb nur zu Hause und nicht in öffentlichen WLANs.
+- Das Pixel-Studio funktioniert auf dem iPad mit Finger und Apple Pencil.
+
 ## Steuerung
 
 | Taste | Aktion |
@@ -64,7 +76,8 @@ jump-and-run/
 │   ├── data/              Chunks, Palette, Biome, Songs
 │   └── storage/           Rekord und Rangliste (LocalStore, später Server)
 ├── assets/
-│   ├── sprites/           unsere Pixel-Grafiken (JSON, eine Zeile pro Pixelreihe)
+│   ├── sprites/           Standardgrafiken (geschützt; JSON, eine Zeile pro Pixelreihe)
+│   ├── skins/             eigene Skins aus dem Pixel-Studio
 │   └── fonts/             unsere 5×7-Pixel-Schrift
 ├── tools/
 │   ├── dev-server.mjs     lokaler Server mit Speicher-Funktion fürs Pixel-Studio
@@ -75,14 +88,22 @@ jump-and-run/
     └── prototype/         erster Ein-Datei-Prototyp
 ```
 
-## Eigene Grafiken (Pixel-Studio)
+## Eigene Grafiken (Pixel-Studio & Skins)
+
+Die **Standardgrafiken** in `assets/sprites/` sind geschützt, das Pixel-Studio überschreibt sie nie.
+Eigene Grafiken landen in einem **Skin** unter `assets/skins/<skin>/`. Ein Skin enthält nur die Sprites, die er verändert. Für alles andere gilt weiter der Standard.
 
 1. `npm run dev` starten und das Pixel-Studio öffnen.
-2. Ein vorhandenes Sprite laden (z. B. `player`) oder ein neues anlegen.
-3. **Skizze**: frei zeichnen oder ein Foto einer Papierzeichnung laden.
-4. **In Pixel umwandeln**: Die Skizze wird auf die Sprite-Größe heruntergerechnet und auf unsere 24-Farben-Palette reduziert, auf Wunsch mit dunkler Kontur.
-5. Pixel nachbessern und weitere Frames bzw. Animationen anlegen.
-6. **Speichern** legt die Datei unter `assets/sprites/<name>.json` ab. Danach das Spiel neu laden.
+2. Oben einen **Skin** wählen oder mit „+ Skin“ einen neuen anlegen.
+3. Ein Sprite laden, zum Beispiel `player`. Mit ★ markierte Sprites sind in diesem Skin bereits verändert.
+4. **Skizze**: frei zeichnen oder ein Foto einer Papierzeichnung laden.
+5. **In Pixel umwandeln**: Die Skizze wird auf die Sprite-Größe heruntergerechnet und auf unsere 24-Farben-Palette reduziert, auf Wunsch mit dunkler Kontur.
+6. Pixel nachbessern und weitere Frames bzw. Animationen anlegen.
+7. **In Skin speichern**. Ersetzt das Sprite eine Standardgrafik, muss die Größe gleich bleiben.
+
+**Zurück zum Original:**
+- *Ein Sprite:* im Studio auf „↺ Standard wiederherstellen“ klicken. Die Skin-Version wird gelöscht.
+- *Alles:* im Spiel unter **Einstellungen → Skin** auf `STANDARD` stellen. Der Skin bleibt dabei erhalten.
 
 Die Palette steht in `src/data/palette.js`. Jede Farbe hat ein Zeichen, `.` ist durchsichtig.
 

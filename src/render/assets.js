@@ -5,7 +5,10 @@ import { PALETTE } from '../data/palette.js';
 //  Ein Sprite besteht aus Animationen, jede Animation aus Frames,
 //  jeder Frame aus Textzeilen mit einem Paletten-Zeichen pro Pixel.
 // ============================================================
-const raw = {};          // Original-JSON je Sprite
+const raw = {};          // Standard-JSON je Sprite (assets/sprites/)
+let skinRaw = {};        // Sprites des aktiven Skins – ersetzen die Standardgrafik
+let activeSkin = '';     // '' = Standard
+let skinList = {};       // { skinName: [spriteNamen] } aus assets/skins/index.json
 const cache = new Map(); // "name|remapKey" → fertiges Sprite
 
 async function fetchJson(url) {
@@ -18,6 +21,26 @@ export async function loadSprites() {
   const { sprites } = await fetchJson('assets/sprites/index.json');
   await Promise.all(sprites.map(async name => { raw[name] = await fetchJson(`assets/sprites/${name}.json`); }));
 }
+
+// Welche Skins gibt es? (Datei pflegt der Dev-Server; fehlt sie, gibt es nur Standard)
+export async function loadSkinList() {
+  try { skinList = (await fetchJson('assets/skins/index.json')).skins || {}; } catch { skinList = {}; }
+  return Object.keys(skinList).sort();
+}
+
+// Skin aktivieren – '' schaltet zurück auf die Standardgrafiken
+export async function setSkin(name) {
+  const next = {};
+  if (name && skinList[name]) {
+    await Promise.all(skinList[name].map(async s => { next[s] = await fetchJson(`assets/skins/${name}/${s}.json`); }));
+  } else name = '';
+  skinRaw = next;
+  activeSkin = name;
+  cache.clear();
+  return name;
+}
+
+export const getActiveSkin = () => activeSkin;
 
 function frameToCanvas(rows, w, h, remap, flip) {
   const c = document.createElement('canvas');
@@ -40,7 +63,7 @@ export function getSprite(name, remap = null, remapKey = '') {
   const id = name + '|' + remapKey;
   let s = cache.get(id);
   if (s) return s;
-  const src = raw[name];
+  const src = skinRaw[name] || raw[name];
   if (!src) return null;
   s = { w: src.width, h: src.height, fps: src.fps || {}, anims: {} };
   for (const [anim, frames] of Object.entries(src.animations)) {
@@ -65,4 +88,4 @@ export function drawSprite(ctx, name, anim, t, x, y, opts = {}) {
   else ctx.drawImage(img, Math.round(x), Math.round(y));
 }
 
-export const hasSprite = name => !!raw[name];
+export const hasSprite = name => !!(skinRaw[name] || raw[name]);
