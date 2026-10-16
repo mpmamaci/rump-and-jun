@@ -14,6 +14,11 @@ const R = Math.round;
 const C = PALETTE;
 
 export function draw(ctx, game) {
+  drawScene(ctx, game);
+  drawToast(ctx, ctx.canvas.width, ctx.canvas.height, game);  // Hinweise immer ganz oben drauf
+}
+
+function drawScene(ctx, game) {
   const W = ctx.canvas.width, H = ctx.canvas.height;
   const { world, camX, camY, time } = game;
   const biome = game.biome;
@@ -322,6 +327,17 @@ function drawHud(ctx, game, W) {
     panel(ctx, W - 14 - tag.length * 6, 21, tag.length * 6 + 8, 13);
     drawText(ctx, tag, W - 10, 24, { align: 'right', color: C.o });
   }
+}
+
+// Kurzer Hinweis unten im Bild (z. B. „Controller verbunden“), blendet sich ein und aus
+function drawToast(ctx, W, H, game) {
+  const toast = game.toast;
+  if (!toast) return;
+  ctx.globalAlpha = Math.min(1, toast.t * 6, (2.5 - toast.t) * 3);
+  const w = toast.text.length * 6 + 16;
+  panel(ctx, R(W / 2 - w / 2), H - 44, w, 15);
+  drawText(ctx, toast.text, W / 2, H - 40, { align: 'center', color: C.a });
+  ctx.globalAlpha = 1;
 }
 
 function drawBanner(ctx, W, b) {

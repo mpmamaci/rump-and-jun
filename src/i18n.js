@@ -17,7 +17,8 @@ const STRINGS = {
     // Einstellungen
     'set.sound': 'SOUNDEFFEKTE', 'set.music': 'MUSIK', 'set.skin': 'SKIN', 'set.default': 'STANDARD',
     'set.tempo': 'TEMPO', 'set.points': 'PUNKTE', 'set.onlyMenu': 'NUR IM MENÜ',
-    'set.fullscreen': 'VOLLBILD', 'set.buttons': 'TASTEN', 'set.side': 'NEBEN DEM BILD', 'set.overlay': 'ÜBERLAGERT',
+    'set.fullscreen': 'VOLLBILD', 'set.buttons': 'TASTEN', 'set.side': 'NEBEN DEM BILD', 'set.overlay': 'ÜBERLAGERT', 'set.hidden': 'AUSGEBLENDET',
+    'set.hiddenNeedsPad': 'AUSGEBLENDET, SOBALD EIN CONTROLLER VERBUNDEN IST',
     'set.language': 'SPRACHE',
     'tempo.NORMAL': 'NORMAL', 'tempo.SCHNELL': 'SCHNELL', 'tempo.TURBO': 'TURBO',
     // Titel
@@ -45,6 +46,7 @@ const STRINGS = {
     'fox.giveUp': 'AUFGEBEN',
     'fox.hint': 'PFEILE + LEERTASTE  ·  1-9  ·  ESC: AUFGEBEN',
     'popup.foxRescue': 'DER FUCHS HAT DICH GERETTET!',
+    'pad.connected': 'CONTROLLER VERBUNDEN',
     // HTML rund ums Spiel
     'html.run': 'laufen', 'html.jump': 'springen', 'html.hold': '(halten = höher)', 'html.space': 'Leertaste',
     'html.pause': 'Pause', 'html.fullscreen': 'Vollbild', 'html.sound': 'Ton',
@@ -66,7 +68,8 @@ const STRINGS = {
     'menu.hint': '↑ ↓ SELECT  ·  SPACE OK  ·  ESC BACK',
     'set.sound': 'SOUND EFFECTS', 'set.music': 'MUSIC', 'set.skin': 'SKIN', 'set.default': 'DEFAULT',
     'set.tempo': 'SPEED', 'set.points': 'SCORE', 'set.onlyMenu': 'MAIN MENU ONLY',
-    'set.fullscreen': 'FULLSCREEN', 'set.buttons': 'BUTTONS', 'set.side': 'BESIDE VIEW', 'set.overlay': 'OVERLAY',
+    'set.fullscreen': 'FULLSCREEN', 'set.buttons': 'BUTTONS', 'set.side': 'BESIDE VIEW', 'set.overlay': 'OVERLAY', 'set.hidden': 'HIDDEN',
+    'set.hiddenNeedsPad': 'HIDDEN AS SOON AS A CONTROLLER IS CONNECTED',
     'set.language': 'LANGUAGE',
     'tempo.NORMAL': 'NORMAL', 'tempo.SCHNELL': 'FAST', 'tempo.TURBO': 'TURBO',
     'title.tagline': 'THE ENDLESS PIXEL ADVENTURE',
@@ -90,6 +93,7 @@ const STRINGS = {
     'fox.giveUp': 'GIVE UP',
     'fox.hint': 'ARROWS + SPACE  ·  1-9  ·  ESC: GIVE UP',
     'popup.foxRescue': 'THE FOX SAVED YOU!',
+    'pad.connected': 'CONTROLLER CONNECTED',
     'html.run': 'run', 'html.jump': 'jump', 'html.hold': '(hold = higher)', 'html.space': 'Space',
     'html.pause': 'Pause', 'html.fullscreen': 'Fullscreen', 'html.sound': 'Sound',
     'html.rotate': '↻ Turn your phone sideways for the best view',
