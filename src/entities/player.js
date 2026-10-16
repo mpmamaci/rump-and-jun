@@ -8,7 +8,7 @@ import { touchCrumble } from '../world/world.js';
 export function createPlayer(x, y) {
   return { x, y, startX: x, startY: y, w: 12, h: 14, vx: 0, vy: 0,
            onGround: false, coyote: 0, jumpBuffer: 0, facing: 1, scaleX: 1, scaleY: 1, riding: null,
-           airJumpUsed: false, invul: 0 };
+           airJumpUsed: false, invul: 0, dust: 0 };
 }
 
 export function updatePlayer(p, game, dt) {
@@ -67,6 +67,12 @@ export function updatePlayer(p, game, dt) {
   p.scaleX += (1 - p.scaleX) * Math.min(1, 12 * dt);
   p.scaleY += (1 - p.scaleY) * Math.min(1, 12 * dt);
   p.invul -= dt;
+
+  // --- Laufstaub
+  if (p.onGround && Math.abs(p.vx) > 60) {
+    p.dust -= dt;
+    if (p.dust <= 0) { puff(world.particles, p.x + p.w / 2 - Math.sign(p.vx) * 5, p.y + p.h - 1, 1, '#94b0c2'); p.dust = 0.09; }
+  }
 
   // --- Stacheln (nur untere Hälfte des Blocks ist gefährlich)
   forEachTile(p, (c, r) => {

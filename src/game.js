@@ -16,6 +16,7 @@ import { loadBest, saveBest } from './storage/best.js';
 import { LocalStore, qualifies } from './storage/leaderboard.js';
 import { JUMP_KEYS } from './input.js';
 import { createMenu, menuKey, menuTap, labelOf } from './ui/menu.js';
+import { biomeForZone } from './data/biomes.js';
 
 const NAME_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
@@ -125,12 +126,19 @@ export class Game {
     this.bestCombo = 0;
     this.effects = { doublejump: 0, shield: false, slowmo: 0 };
     this.popups = [];   // kurze Texte in der Welt, z. B. "SCHILD!"
+    this.shake = 0;      // Bildschirmwackeln in Pixeln
+    this.lastZone = 0;
+    this.banner = null;  // großer Text beim Zonenwechsel
     ensureGenerated(this.world, Math.ceil(this.viewWidth / TILE) + GENERATE_AHEAD);
   }
 
   get meters() { return Math.floor(this.distance / TILE); }
   get tier() { return tierAt(this.meters); }
   get zone() { return Math.floor(this.meters / ZONE_METERS); }  // alle 500 m neue Zone (Musik, Biom)
+  get biome() { return biomeForZone(this.inTitle ? 0 : this.zone); }
+
+  addShake(px) { this.shake = Math.max(this.shake, px); }
+
   get score() { return this.meters + this.coins * POINTS_COIN + this.stompPoints; }
 
   jump() {
@@ -218,6 +226,8 @@ export class Game {
     w.particles = updateParticles(w.particles, dt);
     for (const pop of this.popups) { pop.t += dt; pop.y -= 18 * dt; }
     this.popups = this.popups.filter(pop => pop.t < 1.2);
+    this.shake = Math.max(0, this.shake - 24 * dt);
+    if (this.banner) { this.banner.t += dt; if (this.banner.t > 2.5) this.banner = null; }
 
     if (this.inTitle) {
       // Titel: Kamera fährt langsam über die Welt
@@ -280,6 +290,13 @@ export class Game {
 
     this.distance = Math.max(this.distance, p.x - p.startX);
 
+    // --- Neue Zone erreicht: Biom & Musik wechseln, Banner zeigen
+    if (this.zone !== this.lastZone) {
+      this.lastZone = this.zone;
+      this.banner = { title: `${this.zone * ZONE_METERS} M`, text: this.biome.name, t: 0 };
+      this.sound('powerup');
+    }
+
     // --- Welt rechts weiterbauen, links aufräumen
     const firstCol = Math.floor(this.camX / TILE);
     ensureGenerated(w, firstCol + Math.ceil(this.viewWidth / TILE) + GENERATE_AHEAD);
@@ -292,6 +309,7 @@ export class Game {
     this.bestCombo = Math.max(this.bestCombo, this.combo);
     const pts = POINTS_STOMP * this.combo;
     this.sound('stomp', this.combo);
+    this.addShake(2);
     this.stompPoints += pts;
     this.popup(this.combo > 1 ? `+${pts} ×${this.combo}` : `+${pts}`, e.x + e.w / 2, e.y - 6,
       this.combo > 1 ? '#ffcd75' : '#f4f4f4');
@@ -324,6 +342,7 @@ export class Game {
       puff(this.world.particles, p.x + p.w / 2, p.y + p.h / 2, 18, '#41a6f6');
       this.popup('SCHILD WEG!', p.x + p.w / 2, p.y - 6, '#41a6f6');
       this.sound('shieldbreak');
+      this.addShake(4);
       return;
     }
     this.die();
@@ -336,6 +355,7 @@ export class Game {
     this.state = 'dead';
     this.deadTimer = 0;
     this.sound('death');
+    this.addShake(7);
     if (this.score > this.best) {
       this.best = this.score;
       this.newRecord = true;

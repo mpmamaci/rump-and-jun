@@ -11,15 +11,16 @@ import { menuLayout, labelOf } from '../ui/menu.js';
 const R = Math.round;
 const C = PALETTE;
 
-const DEFAULT_BIOME = {
-  sky: [C.c, C.c, C.c, C.a], cloud: C.w, far: C.t, near: C.g, tileRemap: null, key: 'wiese',
-};
-
 export function draw(ctx, game) {
   const W = ctx.canvas.width, H = ctx.canvas.height;
   const { world, camX, camY, time } = game;
-  const biome = game.biome || DEFAULT_BIOME;
+  const biome = game.biome;
 
+  // Bildschirmwackeln
+  const sx = game.shake ? R((Math.random() * 2 - 1) * game.shake) : 0;
+  const sy = game.shake ? R((Math.random() * 2 - 1) * game.shake) : 0;
+  ctx.save();
+  ctx.translate(sx, sy);
   drawBackground(ctx, W, H, camX, time, biome);
 
   ctx.save();
@@ -32,6 +33,7 @@ export function draw(ctx, game) {
   if (game.state !== 'dead' && !game.inTitle) drawPlayer(ctx, world.player, time, game.effects);
   drawParticles(ctx, world.particles);
   drawPopups(ctx, game.popups);
+  ctx.restore();
   ctx.restore();
 
   if (game.effects.slowmo > 0) {  // Zeitlupe: leichter Blaustich
@@ -47,6 +49,7 @@ export function draw(ctx, game) {
 
   drawDeathWall(ctx, H, time);
   drawHud(ctx, game, W);
+  if (game.banner && game.state === 'run') drawBanner(ctx, W, game.banner);
   if (game.state === 'ready') drawReady(ctx, W, H, time);
   if (game.state === 'paused') drawMenuScreen(ctx, W, H, game, 'PAUSE', time);
   if (game.state === 'settings') drawMenuScreen(ctx, W, H, game, 'EINSTELLUNGEN', time);
@@ -61,7 +64,7 @@ function drawBackground(ctx, W, H, camX, time, biome) {
 
   // Wolken (Parallax 0.15)
   ctx.fillStyle = biome.cloud;
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; biome.cloud && i < 8; i++) {
     const span = W + 80;
     const x = ((i * 97 - camX * 0.15 - time * 4) % span + span) % span - 40;
     cloud(ctx, R(x), 18 + (i * 29) % 70, i % 2);
@@ -69,7 +72,24 @@ function drawBackground(ctx, W, H, camX, time, biome) {
 
   // Hügel in zwei Ebenen, Spalte für Spalte (pixelgenaue Kanten)
   hills(ctx, W, H, camX * 0.25, biome.far, 70, 18, 0.013, 0.031);
+  if (biome.crystals) crystals(ctx, W, H, camX * 0.35, time);
   hills(ctx, W, H, camX * 0.5, biome.near, 40, 14, 0.021, 0.047);
+}
+
+// Leuchtende Kristalle in der Höhle (zwischen den Hügel-Ebenen)
+function crystals(ctx, W, H, offset, time) {
+  const spacing = 70;
+  const first = Math.floor(offset / spacing) - 1;
+  for (let i = first; i < first + W / spacing + 3; i++) {
+    const x = R(i * spacing - offset + ((i * 37) % 23));
+    const h = 10 + ((i * 53) % 14);
+    const y = H - 60 - ((i * 29) % 30);
+    ctx.globalAlpha = 0.6 + Math.sin(time * 2 + i) * 0.3;
+    ctx.fillStyle = C.a;
+    for (let k = 0; k < h; k++) ctx.fillRect(x - Math.floor(k / 3), y + k, 1 + 2 * Math.floor(k / 3), 1);
+    ctx.fillStyle = C.w; ctx.fillRect(x, y + 1, 1, 3);
+  }
+  ctx.globalAlpha = 1;
 }
 
 // Himmel in harten Farbstreifen mit Dither-Übergängen – einmal pro Biom gebaut und gemerkt
@@ -88,6 +108,15 @@ function skyFor(biome, W, H) {
     for (let row = 1; row <= 4; row++) {
       const step = row <= 2 ? 2 : 4;
       for (let x = row % 2; x < W; x += step) g.fillRect(x, i * bh - row, 1, 1);
+    }
+  }
+  if (biome.stars) {
+    // feste "Zufalls"-Sterne, damit sie nicht flackern
+    for (let i = 0; i < 90; i++) {
+      const x = (i * 197 + 31) % W, y = (i * 113 + 7) % Math.floor(H * 0.6);
+      g.fillStyle = i % 7 === 0 ? C.y : i % 3 ? C.s : C.w;
+      g.fillRect(x, y, 1, 1);
+      if (i % 11 === 0) { g.fillRect(x - 1, y, 3, 1); g.fillRect(x, y - 1, 1, 3); }
     }
   }
   skyCache.set(biome.key, c);
@@ -255,6 +284,15 @@ function drawHud(ctx, game, W) {
   const best = 'REKORD ' + game.best;
   panel(ctx, W - 14 - best.length * 6, 6, best.length * 6 + 8, 13);
   drawText(ctx, best, W - 10, 9, { align: 'right' });
+}
+
+function drawBanner(ctx, W, b) {
+  // fährt von oben herein und wieder hinaus
+  const inOut = Math.min(1, b.t * 4, (2.5 - b.t) * 4);
+  const y = R(-40 + inOut * 84);
+  panel(ctx, 0, y - 6, W, 38);
+  drawText(ctx, b.title, W / 2, y, { align: 'center', color: C.y });
+  drawText(ctx, b.text, W / 2, y + 12, { scale: 2, align: 'center', shadow: C.r });
 }
 
 function drawReady(ctx, W, H, time) {

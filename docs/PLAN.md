@@ -182,17 +182,19 @@ assets/
 
 ## 11. Meilensteine
 
-| # | Meilenstein | Ergebnis |
-|---|---|---|
-| **M0** | Aufräumen | Prototyp nach `docs/prototype/`, Google-Schrift raus, niedrige Auflösung + Skalierung, fester Zeitschritt |
-| **M1** | Runner-Kern | Auto-Scroll, Todeswand, Chunk-System mit 5 Chunks, Meter-Anzeige, Sofort-Neustart, **erstmals spielbar als Endlos-Runner** |
-| **M2** | Schwierigkeit | Tempo-Kurve, 15+ Chunks, Springer- und Flieger-Gegner |
-| **M3** | Pixel-Studio | Tool fertig, Palette festgelegt, erste eigene Sprites (Spieler, Boden) im Spiel |
-| **M4** | Power-ups | Doppelsprung, Schild, Zeitlupe inkl. HUD-Anzeige |
-| **M5** | Punkte & Leaderboard | Kombo, Game-Over-Screen, Initialen-Eingabe, lokale Top 10 |
-| **M6** | Audio | Soundeffekte und mitwachsende Chiptune-Musik |
-| **M7** | Handy & Menüs | Touch-Steuerung, Titelbild, Pause, Einstellungen |
-| **M8** | Feinschliff | Biome, Screen-Shake, mehr Partikel, restliche Sprites, 30 Chunks |
+| # | Meilenstein | Ergebnis | Status |
+|---|---|---|---|
+| **M0** | Aufräumen | Prototyp nach `docs/prototype/`, Google-Schrift raus, niedrige Auflösung + Skalierung, fester Zeitschritt | ✅ |
+| **M1** | Runner-Kern | Auto-Scroll, Todeswand, Chunk-System mit 5 Chunks, Meter-Anzeige, Sofort-Neustart, **erstmals spielbar als Endlos-Runner** | ✅ |
+| **M2** | Schwierigkeit | Tempo-Kurve, 15+ Chunks, Springer- und Flieger-Gegner | ✅ |
+| **M3** | Pixel-Studio | Tool fertig, Palette festgelegt, erste eigene Sprites (Spieler, Boden) im Spiel | ✅ |
+| **M4** | Power-ups | Doppelsprung, Schild, Zeitlupe inkl. HUD-Anzeige | ✅ |
+| **M5** | Punkte & Leaderboard | Kombo, Game-Over-Screen, Initialen-Eingabe, lokale Top 10 | ✅ |
+| **M6** | Audio | Soundeffekte und mitwachsende Chiptune-Musik | ✅ |
+| **M7** | Handy & Menüs | Touch-Steuerung, Titelbild, Pause, Einstellungen | ✅ |
+| **M8** | Feinschliff | Biome, Screen-Shake, mehr Partikel, restliche Sprites, 30 Chunks | ✅ |
+
+**Erste Demo fertig (Stand 16.10.2026).** Alle Meilensteine M0–M8 sind umgesetzt.
 
 **Später:** Server-Leaderboard, Tages-Challenge (gleicher Seed für alle), Gamepad, weitere Power-ups (z. B. Münz-Magnet).
 
