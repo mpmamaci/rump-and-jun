@@ -1,5 +1,8 @@
 // ============================================================
 //  SPIELPALETTE – alle Sprites benutzen nur diese 24 Farben.
+//  Quelle: 16 Farben (k d m s w p r o y l g t n b c a) sind die Palette
+//  „Sweetie 16“ von GrafxKid – https://lospec.com/palette-list/sweetie-16
+//  Die übrigen 8 (v i x q f e u h) wurden für dieses Projekt ergänzt.
 //  Jede Farbe hat ein Zeichen, damit Sprites als Text gespeichert werden können.
 //  '.' ist durchsichtig.
 // ============================================================

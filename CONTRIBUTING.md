@@ -2,6 +2,15 @@
 
 Thanks for wanting to help shape this game! Contributions of every size are welcome: a single new track section, a skin, a bug fix or a whole new mechanic.
 
+## Ground rules
+
+Rump & Jun is a community AI satire game: how far can we get with AI, and how absurd can it become? Pretty much anything goes, with two firm limits:
+
+- **Nobody gets insulted.** No content that attacks, mocks or impersonates real people or groups, and no political campaigning.
+- **No one's rights get infringed.** Only contribute work you made yourself, or made with AI assistance for this project. Don't add assets, characters, names or logos from other games or brands. If you build on someone else's openly licensed work, credit it in your PR and in the README's Credits section.
+
+AI-assisted contributions are welcome. Please mention in your PR if and how AI was involved.
+
 ## Getting started
 
 ```bash

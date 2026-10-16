@@ -4,7 +4,7 @@
 
 # Rump & Jun
 
-**An endless pixel-art platformer for the browser.**
+**A playful AI experiment disguised as an endless pixel-art platformer.**
 The track scrolls on its own, gets faster and faster, and never ends. How far can you get?
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-e84a5f.svg)](LICENSE)
@@ -22,6 +22,7 @@ The track scrolls on its own, gets faster and faster, and never ends. How far ca
 
 ## Contents
 
+- [What is this?](#what-is-this)
 - [About the game](#about-the-game)
 - [Screenshots](#screenshots)
 - [Quick start](#quick-start)
@@ -33,11 +34,24 @@ The track scrolls on its own, gets faster and faster, and never ends. How far ca
 - [Project structure](#project-structure)
 - [Contributing](#contributing)
 - [How it was made](#how-it-was-made)
+- [Credits](#credits)
 - [License](#license)
+
+## What is this?
+
+Rump & Jun is a small, humorous community game and an open experiment around AI-generated content, often called "AI slop". It asks two questions at once: **how far can a game get when it is built with AI, and how absurd can it become along the way?** Everyone is invited to push it further. Anything goes, as long as nobody is insulted and no one's rights are infringed.
+
+The name is a wordplay on the video game genre "jump and run".
+
+Good to know:
+
+- It is an independent hobby project. It is not affiliated with or endorsed by any game publisher, by Anthropic, or by any other company.
+- It is not intended as political commentary, and it is not intended to attack or impersonate any real person or organization.
+- The game itself is a plain platformer. The satire lies in the project and how it was made, not in references to anyone.
 
 ## About the game
 
-Rump & Jun combines a classic platformer with the endless, auto-scrolling idea of *The Impossible Game*. You run, jump and climb through a world that is generated as you play, while the left edge of the screen keeps pushing you forward.
+Rump & Jun is an endless, auto-scrolling pixel-art platformer. You run, jump and climb through a world that is generated as you play, while the left edge of the screen keeps pushing you forward.
 
 - 🏃 **Endless track** built from 37 handcrafted sections across 5 difficulty tiers. The speed increases with every meter.
 - 🧗 **Parkour:** wall jumps, wall slides and spring pads.
@@ -47,8 +61,7 @@ Rump & Jun combines a classic platformer with the endless, auto-scrolling idea o
 - 🏆 **Scoring** from distance, coins and enemy combos, plus a local arcade-style **top-10 leaderboard**.
 - 🎚️ **Speed modes:** normal, fast and turbo, each with a score multiplier.
 - 📱 **Desktop, phone and tablet:** touch controls, fullscreen, and it can be installed to your home screen as an app.
-- 🎨 **Everything is homemade:** the pixel art, pixel font, sound effects and chiptune music are all created in this project. No third-party assets are loaded.
-
+- 🎨 **Original assets:** the pixel art, pixel font, sound effects and chiptune music were made for this project. The color palette builds on *Sweetie 16* by GrafxKid (see [Credits](#credits)). No third-party assets are loaded at runtime.
 - 🌍 **English and German:** switch under *Settings → Language*. On first launch the game follows your browser's language.
 
 ## Screenshots
@@ -238,10 +251,24 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the details.
 
 ## How it was made
 
-Rump & Jun was built entirely in conversation with **[Claude](https://claude.ai)** by Anthropic, using Claude Code as a programming partner. Everything was worked out together, from the first game idea through the plan and milestones to the code, pixel art, pixel font, sound, music and tooling. Feedback from real play-testing rounds was folded in along the way.
+Rump & Jun is based on my own ideas, direction and written input. It was created with the assistance of **Claude** by Anthropic, used through Claude Code. Claude helped write the code, the pixel art, the pixel font, the music and sound data and the tooling, and play-testing feedback was folded in along the way. Some sprites, such as the `test1` skin, were drawn by hand in the project's own Pixel Studio.
 
-The original plan with all milestones is in [`docs/PLAN.md`](docs/PLAN.md), and the very first prototype is in [`docs/prototype/`](docs/prototype/).
+The code and project assets were developed or generated specifically for this project, with the exception of the color palette noted under [Credits](#credits). Anthropic is not involved in, affiliated with, or endorsing this project.
+
+The original plan with all milestones is in [`docs/PLAN.md`](docs/PLAN.md) (German), and the very first prototype is in [`docs/prototype/`](docs/prototype/).
+
+## Credits
+
+- **Color palette:** 16 of the game's 24 colors are the [*Sweetie 16* palette by GrafxKid](https://lospec.com/palette-list/sweetie-16). The other 8 colors were added for this project. The palette page does not state a license. The palette is credited here and is not claimed as part of this project's own work.
+- **Build tool:** [esbuild](https://esbuild.github.io) (MIT License) is used only to build the deployable version. It is a development dependency and is not part of the game.
+- **AI assistance:** Claude by Anthropic, as described [above](#how-it-was-made).
 
 ## License
 
-Released under the [MIT License](LICENSE). © 2026 mpmamaci
+The source code and the original project assets in this repository (sprites, skins, pixel font, music and sound data, icons, screenshots and documentation) are released under the [MIT License](LICENSE), © 2026 mpmamaci, unless stated otherwise.
+
+Exceptions and notes:
+- The *Sweetie 16* color values are credited to their creator (see [Credits](#credits)) and are not relicensed by this project.
+- Development dependencies such as esbuild are covered by their own licenses.
+- Names and trademarks of third parties mentioned here (for example Claude, Anthropic or device and platform names) are not covered by this license.
+- Parts of this project were created with AI assistance. How such content is treated under copyright law can differ between countries.
