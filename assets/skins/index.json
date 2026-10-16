@@ -1,5 +1,8 @@
 {
   "skins": {
+    "chicken": [
+      "player"
+    ],
     "test1": [
       "player"
     ]
