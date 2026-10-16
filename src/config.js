@@ -32,6 +32,7 @@ export const SCROLL_START = 55;  // Auto-Scroll am Anfang (Pixel/s)
 export const SCROLL_MAX = 100;   // Höchsttempo – muss unter MOVE_SPEED bleiben!
 export const SCROLL_RAMP = 1200; // nach so vielen Metern sind ca. 63 % des Maximums erreicht
 export const TIER_METERS = [0, 300, 800, 1500, 3000];  // ab hier beginnt Stufe 1, 2, 3, 4, 5
+export const ZONE_METERS = 500;  // alle 500 m wechseln Biom und Musik
 export const DEATH_PAUSE = 0.8;  // so lange bleibt der Game-Over-Moment stehen
 export const GENERATE_AHEAD = 8; // so viele Blöcke rechts vom Bild sind schon fertig gebaut
 

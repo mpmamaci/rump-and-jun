@@ -1,6 +1,6 @@
 import {
   TILE, ROWS, JUMP_BUFFER, DEATH_PAUSE, GENERATE_AHEAD, POINTS_COIN, POINTS_STOMP,
-  DOUBLEJUMP_TIME, SLOWMO_TIME, SLOWMO_FACTOR, HURT_INVUL, JUMP_SPEED,
+  DOUBLEJUMP_TIME, SLOWMO_TIME, SLOWMO_FACTOR, HURT_INVUL, JUMP_SPEED, ZONE_METERS,
 } from './config.js';
 import { POWERUP_INFO } from './entities/powerup.js';
 import { createWorld, ensureGenerated, pruneBehind, updateCrumbling } from './world/world.js';
@@ -34,6 +34,7 @@ export class Game {
     this.leaderboard = [];
     this.lastName = 'AAA';
     this.store.load().then(list => { this.leaderboard = list; });
+    this.sound = () => {};   // wird in main.js mit dem Audio-System verbunden
     this.restart();
   }
 
@@ -59,6 +60,7 @@ export class Game {
 
   get meters() { return Math.floor(this.distance / TILE); }
   get tier() { return tierAt(this.meters); }
+  get zone() { return Math.floor(this.meters / ZONE_METERS); }  // alle 500 m neue Zone (Musik, Biom)
   get score() { return this.meters + this.coins * POINTS_COIN + this.stompPoints; }
 
   jump() {
@@ -87,10 +89,12 @@ export class Game {
       // Buchstaben direkt tippen (hat Vorrang – sonst wäre "A" gleichzeitig "links")
       n.chars[n.slot] = key.toUpperCase();
       if (n.slot < 2) n.slot++;
-    } else if (code === 'ArrowUp' || code === 'ArrowRight') cycle(1);
-    else if (code === 'ArrowDown' || code === 'ArrowLeft') cycle(-1);
+      this.sound('blip');
+    } else if (code === 'ArrowUp' || code === 'ArrowRight') { cycle(1); this.sound('blip'); }
+    else if (code === 'ArrowDown' || code === 'ArrowLeft') { cycle(-1); this.sound('blip'); }
     else if (code === 'Backspace') n.slot = Math.max(0, n.slot - 1);
     else if (!repeat && (code === 'Space' || code === 'Enter')) {
+      this.sound('confirm');
       if (n.slot < 2) n.slot++;
       else this.submitName();
     }
@@ -134,7 +138,7 @@ export class Game {
       }
       return;
     }
-    if (this.state === 'ready' && (moveAxis() !== 0 || p.jumpBuffer > 0)) this.state = 'run';
+    if (this.state === 'ready' && (moveAxis() !== 0 || p.jumpBuffer > 0)) { this.state = 'run'; this.sound('start'); }
     const wdt = dt * this.worldSpeed;
     if (this.state === 'run') {
       this.scrollSpeed = scrollSpeedAt(this.meters);
@@ -147,7 +151,7 @@ export class Game {
     updatePlayer(p, this, dt);
     for (const e of w.enemies) updateEnemy(e, this, wdt);
     if (p.onGround) this.combo = 0;  // Kombo endet, sobald man wieder Boden berührt
-    updateCrumbling(w, dt, (c, r) => puff(w.particles, c * TILE + 8, r * TILE + 8, 8, '#a0703a'));
+    updateCrumbling(w, dt, (c, r) => { puff(w.particles, c * TILE + 8, r * TILE + 8, 8, '#a0703a'); this.sound('crumble'); });
     if (this.state === 'dead') return;
 
     // --- Rechter Bildrand ist eine Wand, linker Bildrand ist tödlich
@@ -159,6 +163,7 @@ export class Game {
     for (const c of w.coins) {
       if (!c.taken && overlap(p, c)) {
         c.taken = true; this.coins++;
+        this.sound('coin');
         puff(w.particles, c.x + c.w / 2, c.y + c.h / 2, 8, '#ffd23f');
       }
     }
@@ -185,12 +190,13 @@ export class Game {
     this.combo++;
     this.bestCombo = Math.max(this.bestCombo, this.combo);
     const pts = POINTS_STOMP * this.combo;
+    this.sound('stomp', this.combo);
     this.stompPoints += pts;
     this.popup(this.combo > 1 ? `+${pts} ×${this.combo}` : `+${pts}`, e.x + e.w / 2, e.y - 6,
       this.combo > 1 ? '#ffcd75' : '#f4f4f4');
   }
 
-  onJump() {}
+  onJump(double) { this.sound(double ? 'doublejump' : 'jump'); }
 
   collectPowerup(pu) {
     const info = POWERUP_INFO[pu.type];
@@ -198,6 +204,7 @@ export class Game {
     if (pu.type === 'shield') this.effects.shield = true;
     if (pu.type === 'slowmo') this.effects.slowmo = SLOWMO_TIME;
     puff(this.world.particles, pu.x + pu.w / 2, pu.y + pu.h / 2, 14, info.color);
+    this.sound('powerup');
     this.popup(info.label, pu.x + pu.w / 2, pu.y - 4, info.color);
   }
 
@@ -215,6 +222,7 @@ export class Game {
       p.vy = -JUMP_SPEED * 0.7;
       puff(this.world.particles, p.x + p.w / 2, p.y + p.h / 2, 18, '#41a6f6');
       this.popup('SCHILD WEG!', p.x + p.w / 2, p.y - 6, '#41a6f6');
+      this.sound('shieldbreak');
       return;
     }
     this.die();
@@ -226,10 +234,12 @@ export class Game {
     puff(this.world.particles, p.x + p.w / 2, p.y + p.h / 2, 16, '#e84a5f');
     this.state = 'dead';
     this.deadTimer = 0;
+    this.sound('death');
     if (this.score > this.best) {
       this.best = this.score;
       this.newRecord = true;
       saveBest(this.best);
+      this.sound('record');
     }
   }
 }

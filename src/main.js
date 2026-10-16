@@ -1,9 +1,11 @@
-import { VIEW_WIDTH, VIEW_HEIGHT, STEP } from './config.js';
+import { VIEW_WIDTH, VIEW_HEIGHT, STEP, SCROLL_START, SCROLL_MAX, SLOWMO_FACTOR } from './config.js';
 import { Game } from './game.js';
 import { initInput } from './input.js';
 import { draw } from './render/renderer.js';
 import { loadSprites } from './render/assets.js';
 import { loadFont } from './render/font.js';
+import { unlockAudio, playSfx, startMusic, stopMusic, setSong, setTempo, audioSettings, setSound, setMusic } from './audio/audio.js';
+import { SONGS } from './data/music.js';
 
 const canvas = document.getElementById('game');
 const frame = document.getElementById('game-frame');
@@ -18,9 +20,35 @@ await Promise.all([loadSprites(), loadFont()]);
 
 const game = new Game(VIEW_WIDTH, VIEW_HEIGHT);
 
+game.sound = playSfx;
+
 initInput({
-  onKeyDown: (code, key, repeat) => game.handleKey(code, key, repeat),
+  onKeyDown: (code, key, repeat) => {
+    unlockAudio();
+    if (game.handleKey(code, key, repeat)) return;
+    // M: Ton an/aus (Musik und Effekte)
+    if (code === 'KeyM' && !repeat) {
+      const on = !(audioSettings.sound || audioSettings.music);
+      setSound(on); setMusic(on);
+    }
+  },
 });
+addEventListener('pointerdown', unlockAudio);
+
+// ============================================================
+//  MUSIK – läuft während des Spiels, Tempo wächst mit dem Scroll-Tempo
+// ============================================================
+function updateMusic() {
+  if (game.state === 'run') {
+    const k = (game.scrollSpeed - SCROLL_START) / (SCROLL_MAX - SCROLL_START);
+    const bpm = (112 + 48 * Math.max(0, k)) * (game.effects.slowmo > 0 ? SLOWMO_FACTOR + 0.15 : 1);
+    setTempo(bpm);
+    setSong(game.zone % SONGS.length);
+    startMusic(game.zone % SONGS.length);
+  } else if (game.state !== 'ready') {
+    stopMusic();
+  }
+}
 
 // Zum Debuggen in der Browser-Konsole: window.game
 window.game = game;
@@ -55,6 +83,7 @@ function loop(now) {
     game.update(STEP);
     acc -= STEP;
   }
+  updateMusic();
   draw(ctx, game);
   requestAnimationFrame(loop);
 }
