@@ -40,12 +40,17 @@ function readPad(pad, mode) {
   return down;
 }
 
-// Jeden Frame aufrufen
-export function pollGamepad(dt, mode, onKeyDown, onConnect) {
+// Wird am Controller gerade irgendetwas gedrückt oder bewegt?
+const padActive = pad => pad.buttons.some(b => b?.pressed) || pad.axes.some(a => Math.abs(a) > DEADZONE);
+
+// Jeden Frame aufrufen. onActivity meldet: Der Controller wird gerade benutzt.
+export function pollGamepad(dt, mode, onKeyDown, onConnect, onActivity) {
   const inMenu = mode !== 'play';
   const pads = navigator.getGamepads ? [...navigator.getGamepads()].filter(Boolean) : [];
   if (pads.length && !connected) onConnect?.(pads[0].id);
   connected = pads.length > 0;
+
+  if (pads.some(padActive)) onActivity?.();
 
   const down = new Set();
   for (const pad of pads) for (const code of readPad(pad, mode)) down.add(code);

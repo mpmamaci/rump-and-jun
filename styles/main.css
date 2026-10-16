@@ -188,6 +188,16 @@ body.touch.touch-overlay .touch-pad--right {
 }
 body.touch.touch-overlay .rotate-hint { display: none; }
 
+/* Mit Controller: Buttons ganz weg, das Spielbild bekommt den ganzen Bildschirm */
+body.touch.buttons-hidden .app {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-areas: "frame";
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+body.touch.buttons-hidden .touch-pad,
+body.touch.buttons-hidden .rotate-hint { display: none; }
+
 /* Kleine Bildschirme ohne Touch (z. B. schmales Browserfenster) */
 @media (max-height: 520px) {
   body:not(.touch) .app { padding: 4px; gap: 0; }

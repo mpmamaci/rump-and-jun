@@ -82,7 +82,7 @@ export class Game {
         : { label: () => `${t('set.tempo')}: ${this.tempoName} (${t('set.onlyMenu')})`, action: () => {} },
       { label: () => `${t('set.fullscreen')}: ${onOff(o.fullscreen())}`, action: () => o.toggleFullscreen() },
       o.hasTouch() && {
-        label: () => `${t('set.buttons')}: ${t(o.touchLayout() === 'side' ? 'set.side' : 'set.overlay')}`,
+        label: () => `${t('set.buttons')}: ${t('set.' + o.touchLayout())}`,
         action: () => o.toggleTouchLayout(),
       },
       { label: () => t('menu.back'), action: back },

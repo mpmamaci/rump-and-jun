@@ -133,8 +133,10 @@ npm run dev
 | B / ◯ | back; during name entry: previous letter |
 | Start / Options | pause |
 
+On phones and tablets the on-screen buttons disappear automatically as soon as you use a controller, and the game view takes the whole screen. Tap the screen to bring them back. You can also hide them permanently under *Settings → Buttons → Hidden*, which only takes effect while a controller is connected, so you can never lock yourself out.
+
 **Phone & tablet:**
-- On-screen buttons for running, jumping and pausing. They sit next to the game view so they never cover your character. You can switch them to an overlay in the settings for a larger picture.
+- On-screen buttons for running, jumping and pausing. They sit next to the game view so they never cover your character. In the settings you can switch them to an overlay for a larger picture, or hide them when playing with a controller.
 - Real fullscreen works on Android, iPad and desktop.
 - On **iPhone**, use *Share → Add to Home Screen* to run the game as an app without browser bars.
 
