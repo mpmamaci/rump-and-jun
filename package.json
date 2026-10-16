@@ -1,9 +1,31 @@
 {
   "name": "jump-and-run",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
-  "description": "Endloses Pixel-Art-Jump-and-Run im Browser",
+  "description": "Endloses Pixel-Art-Jump-and-Run für den Browser – Parkour, Power-ups, eigene Grafiken und Musik",
+  "keywords": [
+    "game",
+    "platformer",
+    "endless-runner",
+    "pixel-art",
+    "canvas",
+    "web-audio",
+    "javascript"
+  ],
+  "author": "mpmamaci",
+  "license": "MIT",
+  "homepage": "https://github.com/mpmamaci/jump-and-run#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mpmamaci/jump-and-run.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mpmamaci/jump-and-run/issues"
+  },
   "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "dev": "node tools/dev-server.mjs",
     "dev:lan": "node tools/dev-server.mjs --lan",

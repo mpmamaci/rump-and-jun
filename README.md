@@ -1,28 +1,78 @@
+<div align="center">
+
+<img src="assets/icons/icon-192.png" alt="Jump & Run Icon" width="96" height="96">
+
 # Jump & Run
 
-Ein endloses Pixel-Art-Jump-and-Run im Browser, gebaut mit purem JavaScript und dem HTML5-Canvas.
-Die Strecke scrollt automatisch und wird immer schneller und schwerer. Wie weit kommst du?
+**Ein endloses Pixel-Art-Jump-and-Run für den Browser.**
+Die Strecke scrollt von selbst, wird immer schneller und hört nie auf. Wie weit kommst du?
 
-**Alles ist selbst gemacht:** Grafiken, Schrift, Soundeffekte und Musik entstehen im Projekt selbst und kommen nicht aus dem Netz. Das Spiel hat keine Abhängigkeiten. Nur zum Bauen der Webspace-Version wird das Werkzeug esbuild genutzt.
+[![Lizenz: MIT](https://img.shields.io/badge/Lizenz-MIT-e84a5f.svg)](LICENSE)
+![Laufzeit-Abhängigkeiten: 0](https://img.shields.io/badge/Abh%C3%A4ngigkeiten-0-38b764.svg)
+![Vanilla JavaScript](https://img.shields.io/badge/JavaScript-ES2022-ffcd75.svg)
+![Plattformen](https://img.shields.io/badge/l%C3%A4uft%20auf-Desktop%20%C2%B7%20Handy%20%C2%B7%20Tablet-41a6f6.svg)
 
-## Features
+<img src="docs/screenshots/title.png" alt="Titelbild" width="720">
 
-- Endlose Strecke aus 37 handgebauten Chunks in 5 Schwierigkeitsstufen
-- Auto-Scroll mit steigendem Tempo, der linke Bildrand ist tödlich
-- 4 Gegnertypen (Läufer, Springer, Flieger, Sturzflieger), bewegte und bröckelnde Plattformen
-- Parkour: Wandsprung, Wandrutschen und Sprungfedern
-- Power-ups: Doppelsprung, Schild, Zeitlupe und die seltene **Rakete**, die dich unverwundbar über 500 m weit trägt
-- Punkte aus Metern, Münzen und Gegner-Kombos, dazu eine lokale Top-10-Rangliste
-- 4 Biome, die alle 500 m wechseln, jedes mit eigener Musik
-- Chiptune-Musik und Effekte live per Web-Audio-API, das Tempo wächst mit
-- Läuft am Desktop (Tastatur) und auf dem Handy (Touch-Buttons)
-- Pixel-Studio: Skizze zeichnen, daraus Pixel-Art machen und als Sprite speichern
+</div>
 
-## Starten
+---
 
-Zum Entwickeln brauchst du nur [Node.js](https://nodejs.org), keine weiteren Pakete:
+## Inhalt
+
+- [Über das Spiel](#über-das-spiel)
+- [Screenshots](#screenshots)
+- [Schnellstart](#schnellstart)
+- [Steuerung](#steuerung)
+- [Pixel-Studio & Skins](#pixel-studio--skins)
+- [Eigene Streckenabschnitte](#eigene-streckenabschnitte)
+- [Veröffentlichen](#veröffentlichen)
+- [Technik](#technik)
+- [Projektstruktur](#projektstruktur)
+- [Lizenz](#lizenz)
+
+## Über das Spiel
+
+Jump & Run verbindet ein klassisches Jump and Run mit der Endlos-Idee von *The Impossible Game*. Du läufst, springst und kletterst durch eine Welt, die beim Spielen entsteht, während dich der linke Bildrand vor sich hertreibt.
+
+- 🏃 **Endlose Strecke** aus 37 handgebauten Abschnitten in 5 Schwierigkeitsstufen. Das Tempo steigt mit jedem Meter.
+- 🧗 **Parkour** mit Wandsprung, Wandrutschen und Sprungfedern.
+- 👾 **4 Gegnertypen:** Läufer, Springer, Flieger und Sturzflieger. Dazu kommen bewegte und bröckelnde Plattformen.
+- ⚡ **Power-ups:** Doppelsprung, Schild, Zeitlupe und die seltene **Rakete**, die dich unverwundbar über 500 m weit trägt.
+- 🌄 **4 Biome**, die alle 500 m wechseln: Wiese, Kristallhöhle, Burg im Abendrot und Sternennacht, jedes mit eigener Musik.
+- 🏆 **Punkte** aus Metern, Münzen und Gegner-Kombos, dazu eine lokale **Top-10-Rangliste** im Arcade-Stil.
+- 🎚️ **Tempo-Stufen** Normal, Schnell und Turbo mit Punkte-Multiplikator.
+- 📱 **Desktop, Handy und Tablet:** Touch-Steuerung, Vollbild und als App auf dem Home-Bildschirm installierbar.
+- 🎨 **Alles selbst gemacht:** Pixel-Grafik, Pixel-Schrift, Soundeffekte und Chiptune-Musik entstehen im Projekt selbst. Es werden keine fremden Assets geladen.
+
+## Screenshots
+
+<table>
+  <tr>
+    <td><img src="docs/screenshots/cave.png" alt="Kristallhöhle mit Kombo und Schild"></td>
+    <td><img src="docs/screenshots/rocket.png" alt="Raketenflug in der Sternennacht"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Kristallhöhle: Kombo und Schild</sub></td>
+    <td align="center"><sub>Raketenflug durch die Sternennacht</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/castle.png" alt="Burg im Abendrot"></td>
+    <td><img src="docs/screenshots/title.png" alt="Titelbild"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Burg im Abendrot mit Doppelsprung</sub></td>
+    <td align="center"><sub>Titelbild</sub></td>
+  </tr>
+</table>
+
+## Schnellstart
+
+Voraussetzung ist [Node.js](https://nodejs.org) ab Version 18. Zum Spielen und Entwickeln werden keine weiteren Pakete benötigt.
 
 ```bash
+git clone https://github.com/mpmamaci/jump-and-run.git
+cd jump-and-run
 npm run dev
 ```
 
@@ -31,130 +81,142 @@ npm run dev
 | Spiel | <http://localhost:8765> |
 | Pixel-Studio | <http://localhost:8765/tools/pixel-studio/> |
 
-### Auf Handy oder iPad testen
+**Auf Handy oder Tablet testen:** Mit `npm run dev:lan` ist der Server auch im eigenen WLAN erreichbar. Er zeigt beim Start die passenden Adressen an. Nutze diesen Modus nur im Heimnetz, denn dort kann jeder im WLAN Skins speichern.
 
-```bash
-npm run dev:lan
-```
+### Alle Befehle
 
-Der Server zeigt dann die Adressen im Heimnetz an, zum Beispiel `http://192.168.178.23:8765`. Diese öffnest du auf dem Handy oder iPad im **selben WLAN**.
-
-- Beim ersten Start fragt macOS eventuell, ob `node` eingehende Verbindungen annehmen darf. Erlaube das.
-- Im Netzwerk-Modus kann jeder im selben WLAN das Spiel öffnen und Skins speichern. Nutze ihn deshalb nur zu Hause und nicht in öffentlichen WLANs.
-- Das Pixel-Studio funktioniert auf dem iPad mit Finger und Apple Pencil.
-
-## Veröffentlichen (statischer Webspace)
-
-```bash
-npm install      # einmalig: holt das Build-Werkzeug esbuild
-npm run build
-```
-
-Der Befehl erzeugt den Ordner `dist/` mit einer minifizierten Version des Spiels:
-
-- Das ganze JavaScript liegt gebündelt in einer Datei, dazu kommen minifiziertes CSS und HTML.
-- Sprites, Schrift und **alle Skins** sind als kompakte JSON-Dateien dabei.
-- Die Dateinamen enthalten einen Inhalts-Hash, damit Browser nach einem Update die neue Version laden.
-- Pixel-Studio, Dev-Server und Dokumentation sind nicht enthalten.
-- Vorher werden automatisch alle Chunks geprüft.
-
-Danach lädst du den **Inhalt** von `dist/` per FTP oder über das Tool deines Hosters auf den Webspace hoch. Es wird kein Server-Programm gebraucht, jeder normale Webspace reicht.
-
-**Ablauf bei Änderungen:** lokal mit `npm run dev` arbeiten (Code, Chunks, Skins im Pixel-Studio), dann `npm run build` und `dist/` erneut hochladen. Alte `game-…js`- und `style-…css`-Dateien auf dem Webspace kannst du dabei löschen.
-
-Hinweis: Per Doppelklick auf `index.html` läuft das Spiel nicht. Browser laden ohne Webserver keine Module und Dateien.
+| Befehl | Zweck |
+|---|---|
+| `npm run dev` | Dev-Server mit Spiel und Pixel-Studio (nur lokal) |
+| `npm run dev:lan` | wie `dev`, aber im Heimnetz erreichbar |
+| `npm run check` | prüft alle Streckenabschnitte auf Fehler |
+| `npm run build` | baut die minifizierte Version für den Webspace nach `dist/` |
+| `npm run icons` | erzeugt die App-Symbole aus dem Spieler-Sprite |
 
 ## Steuerung
 
-| Taste | Aktion |
+| Tastatur | Aktion |
 |---|---|
-| ← → / A D | laufen |
-| Leertaste / W / ↑ | springen (länger halten = höher), an einer Wand: Wandsprung |
-| Esc / P | Pause |
-| F | Vollbild |
-| R | Neustart |
-| M | Ton an/aus |
+| <kbd>←</kbd> <kbd>→</kbd> / <kbd>A</kbd> <kbd>D</kbd> | laufen |
+| <kbd>Leertaste</kbd> / <kbd>W</kbd> / <kbd>↑</kbd> | springen (länger halten = höher). An einer Wand: Wandsprung |
+| <kbd>Esc</kbd> / <kbd>P</kbd> | Pause |
+| <kbd>F</kbd> | Vollbild |
+| <kbd>R</kbd> | Neustart |
+| <kbd>M</kbd> | Ton an/aus |
 
-### Handy & Tablet
+**Handy & Tablet:**
+- Buttons zum Laufen, Springen und Pausieren. Sie liegen neben dem Spielbild und verdecken die Figur nicht. In den Einstellungen kannst du sie auf „überlagert“ umstellen, dann wird das Bild größer.
+- Auf Android, dem iPad und am Desktop gibt es echtes Vollbild.
+- Auf dem **iPhone** geht es über *Teilen → Zum Home-Bildschirm*. Dann startet das Spiel als App ohne Browserleisten.
 
-- **Steuerung:** ‹ › zum Laufen, ⌃ zum Springen und II für die Pause. Menüpunkte lassen sich antippen.
-- **Tasten-Anordnung:** Standardmäßig liegen die Buttons **neben** dem Spielbild (im Hochformat darunter) und verdecken nie die Spielfigur. Unter *Einstellungen → Tasten* kannst du auf **überlagert** umstellen. Dann wird das Bild größer und die Buttons liegen halbdurchsichtig darüber.
-- **Vollbild:** über den Button ⛶ oder *Einstellungen → Vollbild*, am Desktop mit der Taste **F**. Das funktioniert auf Android, auf dem iPad und am Desktop.
-- **iPhone:** Safari erlaubt Webseiten kein Vollbild. Tippe stattdessen auf *Teilen → Zum Home-Bildschirm* und starte das Spiel über das neue Symbol, dann läuft es wie eine App ohne Browserleisten. Das Spiel zeigt diesen Hinweis auch selbst an.
+## Pixel-Studio & Skins
 
-Das App-Symbol wird aus dem Spieler-Sprite erzeugt (`npm run icons` → `assets/icons/`).
+Das Pixel-Studio (`tools/pixel-studio/`) ist ein eigenes kleines Werkzeug für Grafiken. Es funktioniert auch auf dem iPad mit dem Apple Pencil.
+
+1. **Skizzieren:** frei zeichnen oder ein Foto einer Papierzeichnung laden.
+2. **Umwandeln:** Die Skizze wird automatisch auf die Sprite-Größe heruntergerechnet und auf die 24-Farben-Spielpalette reduziert, auf Wunsch mit Kontur.
+3. **Nachbessern:** einzelne Pixel setzen, Frames und Animationen anlegen, mit Zwiebelhaut und Live-Vorschau.
+4. **Speichern** in einen **Skin**.
+
+Die Standardgrafiken in `assets/sprites/` sind **geschützt**. Ein Skin unter `assets/skins/<name>/` enthält nur die Sprites, die er verändert. Im Spiel wählst du den Skin unter *Einstellungen → Skin*, und `STANDARD` stellt jederzeit alles wieder her. Einzelne Sprites setzt du im Studio mit „↺ Standard wiederherstellen“ zurück.
+
+Sprites werden als lesbares JSON gespeichert, eine Pixelreihe pro Zeile mit einem Paletten-Zeichen pro Pixel. So bleiben Änderungen auch in `git diff` gut nachvollziehbar.
+
+## Eigene Streckenabschnitte
+
+Die Welt wird endlos aus **Chunks** in `src/data/chunks.js` zusammengesetzt. Jedes Zeichen ist ein Block mit 16 × 16 Pixeln, und 1 Block entspricht 1 Meter.
+
+```js
+{
+  name: 'wandsprung', difficulty: 2,
+  map: [
+    "",
+    "             CCCC",
+    "        #   #######",
+    "        #   #######",
+    "            #######",
+    "########################",
+    "########################",
+  ],
+},
+```
+
+| Zeichen | Bedeutung | Zeichen | Bedeutung |
+|---|---|---|---|
+| `#` | Boden | `E` | Läufer |
+| `=` | Plattform | `J` | Springer |
+| `~` | Bröckel-Plattform | `B` | Flieger |
+| `^` | Stacheln | `D` | Sturzflieger |
+| `*` | Sprungfeder | `M` / `V` | bewegte Plattform (waagerecht/senkrecht) |
+| `C` | Münze | `?` | Power-up-Platz |
+| `P` | Spieler-Start | `!` | Raketen-Platz (selten, ab Stufe 2) |
+
+**Regeln:** Die Karte wird unten an der Welt ausgerichtet. Die erste und die letzte Spalte brauchen Boden in den untersten zwei Zeilen. `npm run check` prüft das automatisch.
+
+## Veröffentlichen
+
+```bash
+npm install     # einmalig: installiert das Build-Werkzeug esbuild
+npm run build
+```
+
+Danach den **Inhalt** von `dist/` auf einen beliebigen statischen Webspace hochladen. Ein Server-Programm ist nicht nötig.
+
+Der Build
+- bündelt und minifiziert JavaScript, CSS und HTML,
+- verkleinert alle Sprites, Skins und die Schrift,
+- versieht Dateinamen mit einem Inhalts-Hash, damit nach Updates kein alter Cache stört,
+- lässt Pixel-Studio, Dev-Server und Dokumentation weg.
+
+> Per Doppelklick auf `index.html` startet das Spiel nicht. Browser laden ES-Module nur über `http(s)://`.
+
+## Technik
+
+- **Vanilla JavaScript (ES-Module) und Canvas 2D.** Kein Framework, keine Laufzeit-Abhängigkeiten.
+- **Pixelgenaues Rendering:** Das Spiel rendert intern mit 480 × 270 Pixeln und wird am Desktop ganzzahlig in Gerätepixeln hochskaliert.
+- **Fester Zeitschritt** mit 60 Updates pro Sekunde, damit die Physik auf jedem Gerät gleich läuft. Das ist wichtig für faire Highscores.
+- **Seed-basierter Generator** (Mulberry32): Die Chunks werden nach Schwierigkeit gewichtet ausgewählt, und ein Seed erzeugt immer dieselbe Strecke.
+- **Audio-Synthese** über die Web-Audio-API: Oszillatoren und Rauschen für alle Effekte, dazu ein Chiptune-Sequencer mit Lookahead-Planung, dessen Tempo mitwächst.
+- **Sprites als Daten:** Die 24-Farben-Palette mit einem Zeichen pro Farbe macht Biom-Umfärbungen per Paletten-Remap möglich.
+- **Leaderboard-Schnittstelle:** `LocalStore` speichert im Browser, ein `ServerStore` lässt sich später ohne Umbau ergänzen.
+- **Eigene Werkzeuge ohne Zusatzpakete:** Dev-Server, Chunk-Prüfung und ein PNG-Encoder für die App-Symbole.
 
 ## Projektstruktur
 
 ```
 jump-and-run/
-├── index.html             Einstiegsseite
-├── styles/main.css        Seiten-Design
+├── index.html               Einstiegsseite
+├── manifest.webmanifest     Web-App-Manifest (Home-Bildschirm, Vollbild)
+├── styles/main.css          Seiten- und Touch-Layout
 ├── src/
-│   ├── main.js            Start, Skalierung, Game Loop
-│   ├── game.js            Spielzustand (Auto-Scroll, Punkte, Tod & Neustart)
-│   ├── config.js          alle Werte zum Tunen
-│   ├── input.js           Tastatur (+ virtuelle Tasten für Touch)
-│   ├── physics.js         Kollision mit Blöcken
-│   ├── particles.js       Partikeleffekte
-│   ├── core/              Seed-Zufall
-│   ├── world/             endlose Welt, Schwierigkeit
-│   ├── entities/          Spieler, Gegner, Plattformen
-│   ├── render/            Renderer, Sprite-Loader, Pixel-Schrift
-│   ├── audio/             Synthesizer für Effekte und Musik
-│   ├── ui/                Menüs, Touch-Steuerung
-│   ├── data/              Chunks, Palette, Biome, Songs
-│   └── storage/           Rekord und Rangliste (LocalStore, später Server)
+│   ├── main.js              Start, Skalierung, Game Loop
+│   ├── game.js              Spielzustand, Menüs, Power-ups, Rakete
+│   ├── config.js            alle Werte zum Feintunen
+│   ├── core/                Seed-Zufall
+│   ├── world/               endlose Welt, Schwierigkeitskurve
+│   ├── entities/            Spieler, Gegner, Plattformen, Power-ups
+│   ├── render/              Renderer, Sprite-Loader, Pixel-Schrift
+│   ├── audio/               Synthesizer und Musik-Sequencer
+│   ├── ui/                  Menüs, Touch, Vollbild
+│   ├── data/                Chunks, Palette, Biome, Songs
+│   └── storage/             Rekord, Rangliste, Einstellungen
 ├── assets/
-│   ├── sprites/           Standardgrafiken (geschützt; JSON, eine Zeile pro Pixelreihe)
-│   ├── skins/             eigene Skins aus dem Pixel-Studio
-│   └── fonts/             unsere 5×7-Pixel-Schrift
+│   ├── sprites/             Standardgrafiken (geschützt)
+│   ├── skins/               eigene Skins aus dem Pixel-Studio
+│   ├── fonts/               5 × 7-Pixel-Schrift
+│   └── icons/               App-Symbole
 ├── tools/
-│   ├── dev-server.mjs     lokaler Server mit Speicher-Funktion fürs Pixel-Studio
-│   ├── pixel-studio/      Skizze → Pixel-Art → Animation → Speichern
-│   └── check-chunks.mjs   prüft alle Chunks (npm run check)
+│   ├── dev-server.mjs       Dev-Server mit Speicher-API fürs Studio
+│   ├── pixel-studio/        Skizze → Pixel-Art → Animation → Skin
+│   ├── build.mjs            Build für den Webspace
+│   ├── check-chunks.mjs     Prüfung aller Streckenabschnitte
+│   └── make-icons.mjs       App-Symbole aus dem Spieler-Sprite
 └── docs/
-    ├── PLAN.md            Spielplan & Meilensteine
-    └── prototype/         erster Ein-Datei-Prototyp
+    ├── PLAN.md              Spielplan und Meilensteine
+    ├── screenshots/
+    └── prototype/           erster Ein-Datei-Prototyp
 ```
 
-## Eigene Grafiken (Pixel-Studio & Skins)
+## Lizenz
 
-Die **Standardgrafiken** in `assets/sprites/` sind geschützt, das Pixel-Studio überschreibt sie nie.
-Eigene Grafiken landen in einem **Skin** unter `assets/skins/<skin>/`. Ein Skin enthält nur die Sprites, die er verändert. Für alles andere gilt weiter der Standard.
-
-1. `npm run dev` starten und das Pixel-Studio öffnen.
-2. Oben einen **Skin** wählen oder mit „+ Skin“ einen neuen anlegen.
-3. Ein Sprite laden, zum Beispiel `player`. Mit ★ markierte Sprites sind in diesem Skin bereits verändert.
-4. **Skizze**: frei zeichnen oder ein Foto einer Papierzeichnung laden.
-5. **In Pixel umwandeln**: Die Skizze wird auf die Sprite-Größe heruntergerechnet und auf unsere 24-Farben-Palette reduziert, auf Wunsch mit dunkler Kontur.
-6. Pixel nachbessern und weitere Frames bzw. Animationen anlegen.
-7. **In Skin speichern**. Ersetzt das Sprite eine Standardgrafik, muss die Größe gleich bleiben.
-
-**Zurück zum Original:**
-- *Ein Sprite:* im Studio auf „↺ Standard wiederherstellen“ klicken. Die Skin-Version wird gelöscht.
-- *Alles:* im Spiel unter **Einstellungen → Skin** auf `STANDARD` stellen. Der Skin bleibt dabei erhalten.
-
-Die Palette steht in `src/data/palette.js`. Jede Farbe hat ein Zeichen, `.` ist durchsichtig.
-
-## Chunks bauen
-
-Die Strecke wird endlos aus **Chunks** zusammengesetzt, das sind Abschnitte in `src/data/chunks.js`.
-Jedes Zeichen ist ein Block mit 16×16 Pixeln (1 Block = 1 Meter):
-
-| Zeichen | Bedeutung |
-|---|---|
-| `#` | Boden |
-| `=` | Plattform |
-| `^` | Stacheln |
-| `C` | Münze |
-| `E` | Läufer-Gegner |
-| `J` | Springer-Gegner |
-| `B` | Flieger |
-| `D` | Sturzflieger |
-| `*` | Sprungfeder (im Boden) |
-| `?` | Power-up-Platz |
-| `!` | Raketen-Platz (selten, nur an schwer erreichbaren Stellen, ab Stufe 2) |
-| `P` | Spieler-Start (nur im Start-Chunk) |
-
-Regeln: Die Karte wird unten ausgerichtet. Die erste und die letzte Spalte brauchen Boden in den untersten zwei Zeilen.
+Veröffentlicht unter der [MIT-Lizenz](LICENSE). © 2026 mpmamaci

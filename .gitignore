@@ -1,4 +1,13 @@
-.DS_Store
+# Abhängigkeiten & Build
 node_modules/
-.claude/settings.local.json
 dist/
+
+# Betriebssystem & Editoren
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+
+# Lokale Werkzeug-Einstellungen
+.claude/
