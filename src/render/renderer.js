@@ -3,6 +3,8 @@ import { PALETTE } from '../data/palette.js';
 import { PARTICLE_LIFE } from '../particles.js';
 import { drawSprite } from './assets.js';
 import { drawText } from './font.js';
+import { POWERUP_INFO } from '../entities/powerup.js';
+import { DOUBLEJUMP_TIME, SLOWMO_TIME } from '../config.js';
 
 // Alle Positionen werden gerundet, damit nichts zwischen zwei Pixeln landet.
 const R = Math.round;
@@ -24,10 +26,16 @@ export function draw(ctx, game) {
   drawTiles(ctx, world, camX, W, time, biome);
   drawPlatforms(ctx, world.platforms);
   drawCoins(ctx, world.coins, time);
+  drawPowerups(ctx, world.powerups, time);
   drawEnemies(ctx, world.enemies, time);
-  if (game.state !== 'dead') drawPlayer(ctx, world.player, time);
+  if (game.state !== 'dead') drawPlayer(ctx, world.player, time, game.effects);
   drawParticles(ctx, world.particles);
+  drawPopups(ctx, game.popups);
   ctx.restore();
+
+  if (game.effects.slowmo > 0) {  // Zeitlupe: leichter Blaustich
+    ctx.fillStyle = C.n; ctx.globalAlpha = 0.18; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1;
+  }
 
   drawDeathWall(ctx, H, time);
   drawHud(ctx, game, W);
@@ -140,13 +148,52 @@ function drawEnemies(ctx, enemies, time) {
   }
 }
 
-function drawPlayer(ctx, p, time) {
+function drawPowerups(ctx, powerups, time) {
+  for (const pu of powerups) {
+    if (pu.taken) continue;
+    const bob = R(Math.sin(pu.t * 4) * 2);
+    const cx = R(pu.x + pu.w / 2), cy = R(pu.y + pu.h / 2) + bob;
+    // pulsierender Leuchtring
+    const r = 9 + (Math.floor(time * 6) % 2);
+    pixelCircle(ctx, cx, cy, r, POWERUP_INFO[pu.type].color, 0.7);
+    drawSprite(ctx, 'powerup-' + pu.type, 'default', 0, cx - 8, cy - 8);
+  }
+}
+
+// Kreis aus einzelnen Pixeln (Bresenham) – sieht auf Pixel-Art sauberer aus als arc()
+function pixelCircle(ctx, cx, cy, r, color, alpha = 1) {
+  ctx.fillStyle = color; ctx.globalAlpha = alpha;
+  let x = r, y = 0, err = 1 - r;
+  while (x >= y) {
+    for (const [dx, dy] of [[x, y], [y, x], [-y, x], [-x, y], [-x, -y], [-y, -x], [y, -x], [x, -y]]) ctx.fillRect(cx + dx, cy + dy, 1, 1);
+    y++;
+    if (err < 0) err += 2 * y + 1; else { x--; err += 2 * (y - x) + 1; }
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawPopups(ctx, popups) {
+  for (const pop of popups) {
+    ctx.globalAlpha = Math.min(1, (1.2 - pop.t) * 3);
+    drawText(ctx, pop.text, pop.x, pop.y, { align: 'center', color: pop.color, shadow: C.k });
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawPlayer(ctx, p, time, effects) {
+  if (p.invul > 0 && Math.floor(time * 16) % 2) return;  // blinkt nach Schild-Treffer
   let anim = 'idle';
   if (!p.onGround) anim = p.vy < 0 ? 'jump' : 'fall';
   else if (Math.abs(p.vx) > 15) anim = 'run';
   const w = R(16 * p.scaleX), h = R(16 * p.scaleY);
   const x = p.x + p.w / 2 - w / 2, y = p.y + p.h - h;
   drawSprite(ctx, 'player', anim, time, x, y, { flip: p.facing < 0, w, h });
+  if (effects.shield) pixelCircle(ctx, R(p.x + p.w / 2), R(p.y + p.h / 2), 12, C.c, 0.5 + Math.sin(time * 6) * 0.3);
+  if (effects.doublejump > 0 && !p.airJumpUsed && !p.onGround) {  // kleine Flügel: Doppelsprung bereit
+    ctx.fillStyle = C.a;
+    ctx.fillRect(R(p.x) - 3, R(p.y) + 4, 3, 1); ctx.fillRect(R(p.x) - 2, R(p.y) + 5, 2, 1);
+    ctx.fillRect(R(p.x + p.w), R(p.y) + 4, 3, 1); ctx.fillRect(R(p.x + p.w), R(p.y) + 5, 2, 1);
+  }
 }
 
 function drawParticles(ctx, particles) {
@@ -175,6 +222,22 @@ function drawHud(ctx, game, W) {
   panel(ctx, 6, 6, 92, 30);
   drawText(ctx, game.meters + ' M', 11, 10, { scale: 2, shadow: C.k });
   drawText(ctx, 'PUNKTE ' + game.score, 11, 27, { color: C.q });
+
+  // aktive Power-ups mit Restzeit-Balken
+  let ix = 104;
+  const fx = game.effects;
+  const active = [
+    fx.doublejump > 0 && ['doublejump', fx.doublejump / DOUBLEJUMP_TIME],
+    fx.shield && ['shield', 1],
+    fx.slowmo > 0 && ['slowmo', fx.slowmo / SLOWMO_TIME],
+  ].filter(Boolean);
+  for (const [type, left] of active) {
+    panel(ctx, ix, 6, 20, 24);
+    drawSprite(ctx, 'powerup-' + type, 'default', 0, ix + 2, 6);
+    ctx.fillStyle = POWERUP_INFO[type].color;
+    ctx.fillRect(ix + 2, 26, Math.max(1, R(16 * left)), 2);
+    ix += 24;
+  }
 
   const best = 'REKORD ' + game.best;
   panel(ctx, W - 14 - best.length * 6, 6, best.length * 6 + 8, 13);

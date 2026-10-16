@@ -57,7 +57,7 @@ export const CHUNKS = [
   {
     name: 'plattformen', difficulty: 1,
     map: [
-      "",
+      "             ?",
       "            CCC",
       "          =======",
       "",
@@ -70,7 +70,7 @@ export const CHUNKS = [
     name: 'gegner', difficulty: 1,
     map: [
       "",
-      "",
+      "            ?",
       "         C  C  C",
       "      E        E",
       "########################",
@@ -80,7 +80,7 @@ export const CHUNKS = [
   {
     name: 'treppe', difficulty: 1,
     map: [
-      "",
+      "             ?",
       "            CCCC",
       "            ####",
       "        ########",
@@ -92,7 +92,7 @@ export const CHUNKS = [
   {
     name: 'huegel', difficulty: 1,
     map: [
-      "",
+      "          ?",
       "         CCC",
       "",
       "       #######",
@@ -158,7 +158,7 @@ export const CHUNKS = [
     name: 'springer', difficulty: 2,
     map: [
       "",
-      "",
+      "          ?",
       "      C       C",
       "",
       "     J      J",
@@ -171,7 +171,7 @@ export const CHUNKS = [
     map: [
       "",
       "     CC     CC     CC",
-      "",
+      "        ?",
       "",
       "###    ###    ###    ###",
       "###    ###    ###    ###",
@@ -196,7 +196,7 @@ export const CHUNKS = [
     name: 'broeckel', difficulty: 3,
     map: [
       "",
-      "",
+      "              ?",
       "            CCC",
       "",
       "      ~~~~   ~~~~",
@@ -208,7 +208,7 @@ export const CHUNKS = [
   {
     name: 'stachel-plattformen', difficulty: 3,
     map: [
-      "",
+      "         ?",
       "",
       "        ===     ===",
       "",
@@ -234,7 +234,7 @@ export const CHUNKS = [
     name: 'aufzug', difficulty: 3,
     map: [
       "",
-      "",
+      "                 ?",
       "            CCCC",
       "            ########",
       "            ########",
@@ -300,7 +300,7 @@ export const CHUNKS = [
   {
     name: 'chaos', difficulty: 5,
     map: [
-      "",
+      "                ?",
       "         B",
       "                 B",
       "       ~~~    ===",

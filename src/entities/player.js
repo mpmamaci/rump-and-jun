@@ -7,7 +7,8 @@ import { touchCrumble } from '../world/world.js';
 
 export function createPlayer(x, y) {
   return { x, y, startX: x, startY: y, w: 12, h: 14, vx: 0, vy: 0,
-           onGround: false, coyote: 0, jumpBuffer: 0, facing: 1, scaleX: 1, scaleY: 1, riding: null };
+           onGround: false, coyote: 0, jumpBuffer: 0, facing: 1, scaleX: 1, scaleY: 1, riding: null,
+           airJumpUsed: false, invul: 0 };
 }
 
 export function updatePlayer(p, game, dt) {
@@ -27,11 +28,20 @@ export function updatePlayer(p, game, dt) {
   // --- Springen (Coyote Time + Jump Buffer)
   p.coyote = p.onGround ? COYOTE_TIME : p.coyote - dt;
   p.jumpBuffer -= dt;
+  if (p.onGround) p.airJumpUsed = false;
   if (p.jumpBuffer > 0 && p.coyote > 0) {
     p.vy = -JUMP_SPEED;
     p.jumpBuffer = 0; p.coyote = 0;
     p.scaleX = 0.7; p.scaleY = 1.3;  // Streckung beim Absprung
     puff(world.particles, p.x + p.w / 2, p.y + p.h, 6);
+    game.onJump(false);
+  } else if (p.jumpBuffer > 0 && game.effects.doublejump > 0 && !p.airJumpUsed) {
+    // Doppelsprung-Power-up: einmal in der Luft nachspringen
+    p.vy = -JUMP_SPEED * 0.9;
+    p.jumpBuffer = 0; p.airJumpUsed = true;
+    p.scaleX = 0.7; p.scaleY = 1.3;
+    puff(world.particles, p.x + p.w / 2, p.y + p.h, 8, '#73eff7');
+    game.onJump(true);
   }
 
   // --- Schwerkraft (stärker, wenn man die Sprungtaste loslässt → variable Sprunghöhe)
@@ -56,6 +66,7 @@ export function updatePlayer(p, game, dt) {
   }
   p.scaleX += (1 - p.scaleX) * Math.min(1, 12 * dt);
   p.scaleY += (1 - p.scaleY) * Math.min(1, 12 * dt);
+  p.invul -= dt;
 
   // --- Stacheln (nur untere Hälfte des Blocks ist gefährlich)
   forEachTile(p, (c, r) => {

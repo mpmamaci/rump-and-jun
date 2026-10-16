@@ -1,8 +1,9 @@
-import { TILE, ROWS, CRUMBLE_TIME } from '../config.js';
+import { TILE, ROWS, CRUMBLE_TIME, POWERUP_CHANCE, POWERUP_MIN_GAP } from '../config.js';
 import { createRng } from '../core/random.js';
 import { createPlayer } from '../entities/player.js';
 import { createEnemy } from '../entities/enemy.js';
 import { createPlatform } from '../entities/platform.js';
+import { createPowerup, POWERUP_TYPES } from '../entities/powerup.js';
 import { START_CHUNK, CHUNKS } from '../data/chunks.js';
 import { tierAt, chunkWeight } from './difficulty.js';
 
@@ -18,6 +19,7 @@ export function createWorld(seed) {
     colOffset: 0,    // Weltspalte von columns[0]
     nextCol: 0,      // erste noch nicht erzeugte Weltspalte
     lastChunk: null,
+    lastPowerupCol: -Infinity,
     rng: createRng(seed),
     player: null, enemies: [], platforms: [], coins: [], powerups: [], particles: [],
     crumbling: new Map(),  // "spalte,zeile" → Restzeit
@@ -106,7 +108,14 @@ function appendChunk(world, chunk) {
         case 'B': world.enemies.push(createEnemy('flyer', x + 2, y + 4)); break;
         case 'M': world.platforms.push(createPlatform('h', x, y)); break;
         case 'V': world.platforms.push(createPlatform('v', x, y)); break;
-        case '?': break;  // Power-ups folgen in M4
+        case '?':
+          // Nicht jeder ?-Platz bekommt ein Power-up – und nie zu dicht hintereinander
+          if (wc - world.lastPowerupCol >= POWERUP_MIN_GAP && world.rng() < POWERUP_CHANCE) {
+            const type = POWERUP_TYPES[Math.floor(world.rng() * POWERUP_TYPES.length)];
+            world.powerups.push(createPowerup(type, x, y));
+            world.lastPowerupCol = wc;
+          }
+          break;
       }
     }
     world.columns.push(col);

@@ -35,6 +35,14 @@ export const TIER_METERS = [0, 300, 800, 1500, 3000];  // ab hier beginnt Stufe 
 export const DEATH_PAUSE = 0.8;  // so lange bleibt der Game-Over-Moment stehen
 export const GENERATE_AHEAD = 8; // so viele Blöcke rechts vom Bild sind schon fertig gebaut
 
+// Power-ups
+export const POWERUP_CHANCE = 0.55;   // Wahrscheinlichkeit, dass auf einem ?-Platz eins erscheint
+export const POWERUP_MIN_GAP = 60;    // mindestens so viele Blöcke zwischen zwei Power-ups
+export const DOUBLEJUMP_TIME = 15;
+export const SLOWMO_TIME = 5;
+export const SLOWMO_FACTOR = 0.6;     // Welt läuft in Zeitlupe mit 60 % Tempo
+export const HURT_INVUL = 1.2;        // Unverwundbarkeit, nachdem das Schild gebrochen ist
+
 // Punkte
 export const POINTS_COIN = 10;
 export const POINTS_STOMP = 50;
