@@ -4,7 +4,7 @@ import { moveAxis, jumpHeld } from '../input.js';
 import { puff } from '../particles.js';
 
 export function createPlayer(x, y) {
-  return { x, y, startX: x, startY: y, w: 28, h: 36, vx: 0, vy: 0,
+  return { x, y, startX: x, startY: y, w: 12, h: 14, vx: 0, vy: 0,
            onGround: false, coyote: 0, jumpBuffer: 0, facing: 1, scaleX: 1, scaleY: 1, invul: 0 };
 }
 
@@ -48,5 +48,5 @@ export function updatePlayer(p, game, dt) {
   forEachTile(p, (c, r) => {
     if (world.tileAt(c, r) === '^' && p.y + p.h > r * TILE + TILE / 2) game.die();
   });
-  if (p.y > world.rows * TILE + 100) game.die();
+  if (p.y > world.rows * TILE + 40) game.die();
 }

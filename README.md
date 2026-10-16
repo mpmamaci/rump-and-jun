@@ -38,12 +38,14 @@ jump-and-run/
 │   ├── entities/        Spieler, Gegner
 │   └── levels/          Level als Text-Karten
 ├── assets/              Grafiken, Sounds, Schriften
-└── docs/prototype/      erster Ein-Datei-Prototyp
+└── docs/
+    ├── PLAN.md          Spielplan & Meilensteine
+    └── prototype/       erster Ein-Datei-Prototyp
 ```
 
 ## Level bauen
 
-Ein Level besteht aus Textzeilen in `src/levels/`. Jedes Zeichen ist ein Block mit 40×40 Pixeln:
+Ein Level besteht aus Textzeilen in `src/levels/`. Jedes Zeichen ist ein Block mit 16×16 Pixeln:
 
 | Zeichen | Bedeutung |
 |---|---|

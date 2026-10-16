@@ -1,10 +1,14 @@
 // ============================================================
-//  LEVEL 1 – jedes Zeichen ist ein Block (40x40 Pixel)
+//  LEVEL 1 – jedes Zeichen ist ein Block (16×16 Pixel)
 //   #  Boden        =  Plattform     ^  Stacheln
 //   C  Münze        E  Gegner        P  Spieler-Start
 //   F  Zielflagge
 // ============================================================
 export default [
+  "",
+  "",
+  "",
+  "",
   "",
   "",
   "                                        CCC",

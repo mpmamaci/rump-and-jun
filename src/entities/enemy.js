@@ -3,7 +3,7 @@ import { moveAndCollide, enemySolid, overlap } from '../physics.js';
 import { puff } from '../particles.js';
 
 export function createEnemy(x, y) {
-  return { x, y, w: 32, h: 28, vx: -ENEMY_SPEED, vy: 0, alive: true, squish: 0 };
+  return { x, y, w: 13, h: 11, vx: -ENEMY_SPEED, vy: 0, alive: true, squish: 0 };
 }
 
 export function updateEnemy(e, game, dt) {
@@ -16,12 +16,12 @@ export function updateEnemy(e, game, dt) {
   moveAndCollide(e, dt, world, enemySolid);
 
   // An Wänden oder Kanten umdrehen
-  const aheadX = dirBefore > 0 ? e.x + e.w + 2 : e.x - 2;
-  const groundAhead = enemySolid(world.tileAt(Math.floor(aheadX / TILE), Math.floor((e.y + e.h + 2) / TILE)));
+  const aheadX = dirBefore > 0 ? e.x + e.w + 1 : e.x - 1;
+  const groundAhead = enemySolid(world.tileAt(Math.floor(aheadX / TILE), Math.floor((e.y + e.h + 1) / TILE)));
   if (e.hitWall || (e.onGround && !groundAhead)) e.vx = -dirBefore * ENEMY_SPEED;
 
   if (overlap(p, e) && p.invul <= 0) {
-    if (p.vy > 0 && p.y + p.h - e.y < 18) {   // von oben drauf gesprungen
+    if (p.vy > 0 && p.y + p.h - e.y < 7) {   // von oben drauf gesprungen
       e.alive = false; e.squish = 0.4;
       p.vy = -JUMP_SPEED * 0.6;
       game.score += 100;

@@ -16,7 +16,7 @@ html, body { margin: 0; height: 100%; }
 body {
   background: radial-gradient(ellipse at top, var(--bg-glow), var(--bg) 70%);
   color: var(--text);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: system-ui, -apple-system, sans-serif;
 }
 
 .app {
@@ -31,8 +31,10 @@ body {
 
 .logo {
   margin: 0;
-  font-family: 'Press Start 2P', monospace;
-  font-size: clamp(18px, 4vw, 32px);
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;  /* Platzhalter bis zur eigenen Pixel-Schrift */
+  font-weight: 800;
+  font-size: clamp(22px, 5vw, 40px);
+  text-transform: uppercase;
   letter-spacing: 2px;
   color: var(--text);
   text-shadow: 3px 3px 0 var(--accent);
@@ -44,15 +46,13 @@ body {
   background: var(--frame);
   border-radius: calc(var(--radius) + 8px);
   box-shadow: 0 20px 60px #000a, inset 0 0 0 2px #ffffff10;
-  max-width: 100%;
 }
 
 canvas {
   display: block;
-  width: min(960px, calc(100vw - 48px));
-  height: auto;
-  max-height: 72vh;
-  aspect-ratio: 960 / 520;
+  /* Größe setzt main.js als ganzzahliges Vielfaches von 480×270 */
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
   border-radius: var(--radius);
 }
 

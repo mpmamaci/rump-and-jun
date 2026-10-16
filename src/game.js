@@ -1,5 +1,4 @@
-import { TILE, START_LIVES, JUMP_BUFFER } from './config.js';
-import { loadLevel } from './world.js';
+import { TILE, START_LIVES, JUMP_BUFFER } from './config.js';import { loadLevel } from './world.js';
 import { updatePlayer } from './entities/player.js';
 import { updateEnemy } from './entities/enemy.js';
 import { puff, updateParticles } from './particles.js';
@@ -8,8 +7,9 @@ import level1 from './levels/level1.js';
 
 // Hält den kompletten Spielzustand: Welt, Punkte, Leben, Kamera
 export class Game {
-  constructor(viewWidth) {
+  constructor(viewWidth, viewHeight) {
     this.viewWidth = viewWidth;
+    this.viewHeight = viewHeight;
     this.restart();
   }
 
@@ -20,6 +20,7 @@ export class Game {
     this.time = 0;
     this.camX = 0;
     this.world = loadLevel(level1);
+    this.camY = this.world.rows * TILE - this.viewHeight;  // Boden bündig am unteren Rand
   }
 
   jump() { this.world.player.jumpBuffer = JUMP_BUFFER; }

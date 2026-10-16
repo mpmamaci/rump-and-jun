@@ -22,10 +22,10 @@ export function loadLevel(levelRows) {
       const x = c * TILE, y = r * TILE;
       world.grid[r][c] = ' ';
       if (ch === '#' || ch === '=' || ch === '^') world.grid[r][c] = ch;
-      else if (ch === 'P') world.player = createPlayer(x + 6, y + 4);
-      else if (ch === 'C') world.coins.push({ x: x + 10, y: y + 8, w: 20, h: 24, taken: false });
-      else if (ch === 'E') world.enemies.push(createEnemy(x + 4, y + 12));
-      else if (ch === 'F') world.flag = { x: x + 16, y: y - 3 * TILE, w: 12, h: 4 * TILE };
+      else if (ch === 'P') world.player = createPlayer(x + 2, y + 2);
+      else if (ch === 'C') world.coins.push({ x: x + 4, y: y + 3, w: 8, h: 10, taken: false });
+      else if (ch === 'E') world.enemies.push(createEnemy(x + 2, y + 5));
+      else if (ch === 'F') world.flag = { x: x + 6, y: y - 3 * TILE, w: 5, h: 4 * TILE };
     }
   }
   return world;
