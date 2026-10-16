@@ -32,6 +32,9 @@ Create them in the Pixel Studio and save them into a skin (`assets/skins/<name>/
 - Enemies live in `src/entities/enemy.js`, power-ups in `src/entities/powerup.js` and `src/game.js`, and biomes in `src/data/biomes.js`.
 - Keep the game **dependency-free at runtime**: no frameworks, and no assets loaded from the internet.
 
+### 🌍 Translations
+All in-game texts live in `src/i18n.js` as German/English pairs. You can fix wording there or add a new language block. The pixel font supports A–Z, 0–9, Ä Ö Ü and common punctuation.
+
 ### 🎵 Music and sound
 Songs are data in `src/data/music.js` (four chords plus lead, bass and drum patterns). Sound effects are synthesized in `src/audio/audio.js`.
 

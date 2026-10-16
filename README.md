@@ -49,7 +49,7 @@ Rump & Jun combines a classic platformer with the endless, auto-scrolling idea o
 - 📱 **Desktop, phone and tablet:** touch controls, fullscreen, and it can be installed to your home screen as an app.
 - 🎨 **Everything is homemade:** the pixel art, pixel font, sound effects and chiptune music are all created in this project. No third-party assets are loaded.
 
-> The in-game texts are in German.
+- 🌍 **English and German:** switch under *Settings → Language*. On first launch the game follows your browser's language.
 
 ## Screenshots
 
@@ -124,7 +124,7 @@ The Pixel Studio (`tools/pixel-studio/`) is a small homemade graphics tool. It a
 3. **Refine:** edit individual pixels and create frames and animations, with onion skinning and a live preview.
 4. **Save** into a **skin**.
 
-The default sprites in `assets/sprites/` are **protected**. A skin in `assets/skins/<name>/` only contains the sprites it changes. Pick a skin in the game under *Einstellungen → Skin*. `STANDARD` restores the defaults at any time, and the studio's "↺ Standard wiederherstellen" resets a single sprite.
+The default sprites in `assets/sprites/` are **protected**. A skin in `assets/skins/<name>/` only contains the sprites it changes. Pick a skin in the game under *Settings → Skin*. `DEFAULT` restores the defaults at any time, and the studio's "↺ Standard wiederherstellen" button resets a single sprite.
 
 Sprites are stored as readable JSON, one pixel row per line with one palette character per pixel, so changes stay easy to follow in `git diff`.
 
@@ -198,6 +198,7 @@ rump-and-jun/
 │   ├── main.js              startup, scaling, game loop
 │   ├── game.js              game state, menus, power-ups, rocket
 │   ├── config.js            all tuning values
+│   ├── i18n.js              all in-game texts (German / English)
 │   ├── core/                seeded randomness
 │   ├── world/               endless world, difficulty curve
 │   ├── entities/            player, enemies, platforms, power-ups

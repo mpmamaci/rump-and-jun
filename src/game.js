@@ -19,8 +19,10 @@ import { JUMP_KEYS } from './input.js';
 import { createMenu, menuKey, menuTap, labelOf } from './ui/menu.js';
 import { biomeForZone } from './data/biomes.js';
 import { loadTempo, saveTempo } from './storage/tempo.js';
+import { t } from './i18n.js';
 
 const NAME_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+const onOff = on => t(on ? 'on' : 'off');
 
 // Hält den kompletten Spielzustand
 //   'title'    – Titelbild mit Menü
@@ -46,7 +48,7 @@ export class Game {
     // Ton-Schalter – main.js verbindet sie mit dem Audio-System
     this.options = {
       sound: () => true, setSound() {}, music: () => true, setMusic() {},
-      skin: () => '', nextSkin() {},
+      skin: () => '', nextSkin() {}, nextLanguage() {},
       fullscreen: () => false, toggleFullscreen() {},
       hasTouch: () => false, touchLayout: () => 'side', toggleTouchLayout() {},
     };
@@ -58,9 +60,9 @@ export class Game {
     this.restart();
     this.state = 'title';
     this.menu = createMenu('title', 150, [
-      { label: 'SPIELEN', action: () => this.restart() },
-      { label: 'RANGLISTE', action: () => this.openBoard(true) },
-      { label: 'EINSTELLUNGEN', action: () => this.openSettings('title') },
+      { label: () => t('menu.play'), action: () => this.restart() },
+      { label: () => t('menu.leaderboard'), action: () => this.openBoard(true) },
+      { label: () => t('menu.settings'), action: () => this.openSettings('title') },
     ]);
   }
 
@@ -69,19 +71,20 @@ export class Game {
     const o = this.options;
     this.state = 'settings';
     this.menu = createMenu('settings', 76, [
-      { label: () => 'SOUNDEFFEKTE: ' + (o.sound() ? 'AN' : 'AUS'), action: () => o.setSound(!o.sound()) },
-      { label: () => 'MUSIK: ' + (o.music() ? 'AN' : 'AUS'), action: () => o.setMusic(!o.music()) },
-      { label: () => 'SKIN: ' + (o.skin() || 'STANDARD'), action: () => o.nextSkin() },
+      { label: () => `${t('set.language')}: ${t('lang.name')}`, action: () => o.nextLanguage() },
+      { label: () => `${t('set.sound')}: ${onOff(o.sound())}`, action: () => o.setSound(!o.sound()) },
+      { label: () => `${t('set.music')}: ${onOff(o.music())}`, action: () => o.setMusic(!o.music()) },
+      { label: () => `${t('set.skin')}: ${o.skin() || t('set.default')}`, action: () => o.nextSkin() },
       // Tempo nur im Hauptmenü änderbar – sonst könnte man mitten im Lauf schummeln
       returnTo === 'title'
-        ? { label: () => `TEMPO: ${this.tempo.name} (PUNKTE ×${this.tempo.points})`, action: () => this.cycleTempo() }
-        : { label: () => `TEMPO: ${this.tempo.name} (NUR IM MENÜ)`, action: () => {} },
-      { label: () => 'VOLLBILD: ' + (o.fullscreen() ? 'AN' : 'AUS'), action: () => o.toggleFullscreen() },
+        ? { label: () => `${t('set.tempo')}: ${this.tempoName} (${t('set.points')} ×${this.tempo.points})`, action: () => this.cycleTempo() }
+        : { label: () => `${t('set.tempo')}: ${this.tempoName} (${t('set.onlyMenu')})`, action: () => {} },
+      { label: () => `${t('set.fullscreen')}: ${onOff(o.fullscreen())}`, action: () => o.toggleFullscreen() },
       o.hasTouch() && {
-        label: () => 'TASTEN: ' + (o.touchLayout() === 'side' ? 'NEBEN DEM BILD' : 'ÜBERLAGERT'),
+        label: () => `${t('set.buttons')}: ${t(o.touchLayout() === 'side' ? 'set.side' : 'set.overlay')}`,
         action: () => o.toggleTouchLayout(),
       },
-      { label: 'ZURÜCK', action: back },
+      { label: () => t('menu.back'), action: back },
     ].filter(Boolean), back);
   }
 
@@ -89,9 +92,9 @@ export class Game {
   openTitleMenuOnly() {
     this.state = 'title';
     this.menu = createMenu('title', 150, [
-      { label: 'SPIELEN', action: () => this.restart() },
-      { label: 'RANGLISTE', action: () => this.openBoard(true) },
-      { label: 'EINSTELLUNGEN', action: () => this.openSettings('title') },
+      { label: () => t('menu.play'), action: () => this.restart() },
+      { label: () => t('menu.leaderboard'), action: () => this.openBoard(true) },
+      { label: () => t('menu.settings'), action: () => this.openSettings('title') },
     ]);
     this.menu.index = 2;
   }
@@ -101,10 +104,10 @@ export class Game {
     this.state = 'paused';
     const resume = () => { this.state = this.pausedFrom || 'run'; };
     this.menu = createMenu('paused', 110, [
-      { label: 'WEITER', action: resume },
-      { label: 'NEUSTART', action: () => this.restart() },
-      { label: 'EINSTELLUNGEN', action: () => this.openSettings('pause') },
-      { label: 'HAUPTMENÜ', action: () => this.openTitle() },
+      { label: () => t('menu.resume'), action: resume },
+      { label: () => t('menu.restart'), action: () => this.restart() },
+      { label: () => t('menu.settings'), action: () => this.openSettings('pause') },
+      { label: () => t('menu.mainMenu'), action: () => this.openTitle() },
     ], resume);
   }
 
@@ -158,6 +161,7 @@ export class Game {
   addShake(px) { this.shake = Math.max(this.shake, px); }
 
   get tempo() { return TEMPO_LEVELS[this.tempoIndex]; }
+  get tempoName() { return t('tempo.' + this.tempo.name); }
 
   cycleTempo() {
     this.tempoIndex = (this.tempoIndex + 1) % TEMPO_LEVELS.length;
@@ -329,7 +333,7 @@ export class Game {
     // --- Neue Zone erreicht: Biom & Musik wechseln, Banner zeigen
     if (this.zone !== this.lastZone) {
       this.lastZone = this.zone;
-      this.banner = { title: `${this.zone * ZONE_METERS} M`, text: this.biome.name, t: 0 };
+      this.banner = { title: `${this.zone * ZONE_METERS} M`, text: t('biome.' + this.biome.key), t: 0 };
       this.sound('powerup');
     }
 
@@ -360,7 +364,7 @@ export class Game {
     if (this.wallHintShown) return;
     this.wallHintShown = true;
     const p = this.world.player;
-    this.popup('AN DER WAND: SPRINGEN = WANDSPRUNG!', p.x + p.w / 2, p.y - 14, '#73eff7');
+    this.popup(t('popup.wallHint'), p.x + p.w / 2, p.y - 14, '#73eff7');
   }
 
   // ---------------- Rakete ----------------
@@ -394,7 +398,7 @@ export class Game {
     p.vy = 0; p.vx = MOVE_SPEED * 0.6;
     p.invul = HURT_INVUL; p.airJumpUsed = false;
     w.landingStart = null;
-    this.popup('LANDUNG!', p.x + p.w / 2, p.y - 8, '#ffcd75');
+    this.popup(t('popup.landing'), p.x + p.w / 2, p.y - 8, '#ffcd75');
     this.addShake(3);
   }
 
@@ -418,7 +422,7 @@ export class Game {
     if (pu.type === 'rocket') this.startRocket();
     puff(this.world.particles, pu.x + pu.w / 2, pu.y + pu.h / 2, 14, info.color);
     this.sound(pu.type === 'rocket' ? 'rocket' : 'powerup');
-    this.popup(info.label, pu.x + pu.w / 2, pu.y - 4, info.color);
+    this.popup(t('powerup.' + pu.type), pu.x + pu.w / 2, pu.y - 4, info.color);
   }
 
   popup(text, x, y, color = '#f4f4f4') {
@@ -434,7 +438,7 @@ export class Game {
       p.invul = HURT_INVUL;
       p.vy = -JUMP_SPEED * 0.7;
       puff(this.world.particles, p.x + p.w / 2, p.y + p.h / 2, 18, '#41a6f6');
-      this.popup('SCHILD WEG!', p.x + p.w / 2, p.y - 6, '#41a6f6');
+      this.popup(t('popup.shieldGone'), p.x + p.w / 2, p.y - 6, '#41a6f6');
       this.sound('shieldbreak');
       this.addShake(4);
       return;

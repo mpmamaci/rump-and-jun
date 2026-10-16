@@ -8,8 +8,11 @@ import { loadFont } from './render/font.js';
 import { unlockAudio, playSfx, startMusic, stopMusic, setSong, setTempo, audioSettings, setSound, setMusic } from './audio/audio.js';
 import { SONGS } from './data/music.js';
 import { initTouch } from './ui/touch.js';
+import { applyHtml, getLang, setLang, LANGUAGES } from './i18n.js';
 import { toggleFullscreen, isFullscreen, isStandalone, onFullscreenChange } from './ui/fullscreen.js';
 import { loadTouchLayout, saveTouchLayout } from './storage/touch-layout.js';
+
+applyHtml();  // Seitentexte in der gespeicherten Sprache (bzw. Browsersprache)
 
 const canvas = document.getElementById('game');
 const frame = document.getElementById('game-frame');
@@ -54,6 +57,11 @@ game.options = {
     const order = ['', ...skinNames];
     const next = order[(order.indexOf(getActiveSkin()) + 1) % order.length];
     saveSkinChoice(await setSkin(next));
+  },
+  // Deutsch ⇄ Englisch
+  nextLanguage() {
+    setLang(LANGUAGES[(LANGUAGES.indexOf(getLang()) + 1) % LANGUAGES.length]);
+    resize();  // Tasten-Hinweise können anders breit sein
   },
   fullscreen: isFullscreen,
   toggleFullscreen: fullscreen,

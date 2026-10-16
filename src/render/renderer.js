@@ -6,6 +6,7 @@ import { drawText } from './font.js';
 import { POWERUP_INFO } from '../entities/powerup.js';
 import { DOUBLEJUMP_TIME, SLOWMO_TIME } from '../config.js';
 import { menuLayout, labelOf } from '../ui/menu.js';
+import { t } from '../i18n.js';
 
 // Alle Positionen werden gerundet, damit nichts zwischen zwei Pixeln landet.
 const R = Math.round;
@@ -43,7 +44,7 @@ export function draw(ctx, game) {
 
   if (game.inTitle) {
     if (game.state === 'title') drawTitle(ctx, W, H, game, time);
-    if (game.state === 'settings') drawMenuScreen(ctx, W, H, game, 'EINSTELLUNGEN', time);
+    if (game.state === 'settings') drawMenuScreen(ctx, W, H, game, t('menu.settings'), time);
     if (game.state === 'board') drawBoard(ctx, W, H, game, time);
     return;
   }
@@ -52,8 +53,8 @@ export function draw(ctx, game) {
   drawHud(ctx, game, W);
   if (game.banner && game.state === 'run') drawBanner(ctx, W, game.banner);
   if (game.state === 'ready') drawReady(ctx, W, H, time);
-  if (game.state === 'paused') drawMenuScreen(ctx, W, H, game, 'PAUSE', time);
-  if (game.state === 'settings') drawMenuScreen(ctx, W, H, game, 'EINSTELLUNGEN', time);
+  if (game.state === 'paused') drawMenuScreen(ctx, W, H, game, t('menu.pause'), time);
+  if (game.state === 'settings') drawMenuScreen(ctx, W, H, game, t('menu.settings'), time);
   if (game.state === 'dead') drawDead(ctx, W, H, game);
   if (game.state === 'name') drawNameEntry(ctx, W, H, game, time);
   if (game.state === 'board') drawBoard(ctx, W, H, game, time);
@@ -146,15 +147,15 @@ function drawTiles(ctx, world, camX, W, time, biome) {
   const remap = biome.tileRemap, remapKey = biome.key;
   const c0 = Math.floor(camX / TILE), c1 = c0 + Math.ceil(W / TILE) + 1;
   for (let r = 0; r < world.rows; r++) for (let c = c0; c <= c1; c++) {
-    const t = world.tileAt(c, r);
-    if (t === ' ') continue;
+    const tile = world.tileAt(c, r);
+    if (tile === ' ') continue;
     const x = c * TILE, y = r * TILE;
     const o = { remap, remapKey };
-    if (t === '#') drawSprite(ctx, world.tileAt(c, r - 1) === '#' ? 'ground' : 'ground-top', 'default', 0, x, y, o);
-    else if (t === '=') drawSprite(ctx, 'brick', 'default', 0, x, y, o);
-    else if (t === '^') drawSprite(ctx, 'spikes', 'default', 0, x, y, o);
-    else if (t === '*') drawSprite(ctx, 'spring', world.springs.has(c + ',' + r) ? 'bounce' : 'idle', 0, x, y, o);
-    else if (t === '~') {
+    if (tile === '#') drawSprite(ctx, world.tileAt(c, r - 1) === '#' ? 'ground' : 'ground-top', 'default', 0, x, y, o);
+    else if (tile === '=') drawSprite(ctx, 'brick', 'default', 0, x, y, o);
+    else if (tile === '^') drawSprite(ctx, 'spikes', 'default', 0, x, y, o);
+    else if (tile === '*') drawSprite(ctx, 'spring', world.springs.has(c + ',' + r) ? 'bounce' : 'idle', 0, x, y, o);
+    else if (tile === '~') {
       const shake = world.crumbling.has(c + ',' + r) ? R(Math.sin(time * 70)) : 0;
       drawSprite(ctx, 'crumble', 'default', 0, x + shake, y, o);
     }
@@ -286,10 +287,10 @@ function panel(ctx, x, y, w, h) {
 function drawHud(ctx, game, W) {
   panel(ctx, 6, 6, 92, 30);
   drawText(ctx, game.meters + ' M', 11, 10, { scale: 2, shadow: C.k });
-  drawText(ctx, 'PUNKTE ' + game.score, 11, 27, { color: C.q });
+  drawText(ctx, t('hud.points') + ' ' + game.score, 11, 27, { color: C.q });
   // Kombo unter dem Punkte-Feld (oben rechts im Feld wäre sie bei langen Strecken im Weg)
   if (game.combo > 1) {
-    const label = 'KOMBO ×' + game.combo;
+    const label = t('hud.combo') + ' ×' + game.combo;
     panel(ctx, 6, 38, label.length * 6 + 8, 13);
     drawText(ctx, label, 10, 41, { color: C.o });
   }
@@ -311,11 +312,11 @@ function drawHud(ctx, game, W) {
     ix += 24;
   }
 
-  const best = 'REKORD ' + game.best;
+  const best = t('hud.best') + ' ' + game.best;
   panel(ctx, W - 14 - best.length * 6, 6, best.length * 6 + 8, 13);
   drawText(ctx, best, W - 10, 9, { align: 'right' });
   if (game.tempo.points > 1) {
-    const tag = `${game.tempo.name} ×${game.tempo.points}`;
+    const tag = `${game.tempoName} ×${game.tempo.points}`;
     panel(ctx, W - 14 - tag.length * 6, 21, tag.length * 6 + 8, 13);
     drawText(ctx, tag, W - 10, 24, { align: 'right', color: C.o });
   }
@@ -333,16 +334,16 @@ function drawBanner(ctx, W, b) {
 function drawReady(ctx, W, H, time) {
   if (Math.floor(time * 2) % 2) return;  // blinkender Hinweis
   panel(ctx, W / 2 - 92, H / 2 - 44, 184, 17);
-  drawText(ctx, '→ ODER LEERTASTE: LOS!', W / 2, H / 2 - 39, { align: 'center' });
+  drawText(ctx, t('ready'), W / 2, H / 2 - 39, { align: 'center' });
 }
 
 function drawDead(ctx, W, H, game) {
   ctx.fillStyle = C.k; ctx.globalAlpha = 0.7; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1;
   drawText(ctx, game.meters + ' M', W / 2, H / 2 - 34, { scale: 4, align: 'center', shadow: C.r });
-  drawText(ctx, 'PUNKTE ' + game.score, W / 2, H / 2 + 4, { scale: 2, align: 'center', color: C.q });
-  drawText(ctx, game.newRecord ? 'NEUER REKORD!' : 'REKORD ' + game.best, W / 2, H / 2 + 24,
+  drawText(ctx, t('hud.points') + ' ' + game.score, W / 2, H / 2 + 4, { scale: 2, align: 'center', color: C.q });
+  drawText(ctx, game.newRecord ? t('dead.newRecord') : t('hud.best') + ' ' + game.best, W / 2, H / 2 + 24,
     { align: 'center', color: game.newRecord ? C.l : C.w });
-  const extra = `MÜNZEN ${game.coins}` + (game.bestCombo > 1 ? `  ·  BESTE KOMBO ×${game.bestCombo}` : '');
+  const extra = `${t('dead.coins')} ${game.coins}` + (game.bestCombo > 1 ? `  ·  ${t('dead.bestCombo')} ×${game.bestCombo}` : '');
   drawText(ctx, extra, W / 2, H / 2 + 38, { align: 'center', color: C.s });
 }
 
@@ -352,9 +353,9 @@ function dim(ctx, W, H, a = 0.8) {
 
 function drawNameEntry(ctx, W, H, game, time) {
   dim(ctx, W, H);
-  drawText(ctx, 'TOP 10!', W / 2, 30, { scale: 3, align: 'center', color: C.q, shadow: C.r });
-  drawText(ctx, `${game.score} PUNKTE  ·  ${game.meters} M`, W / 2, 62, { align: 'center' });
-  drawText(ctx, 'DEIN NAME:', W / 2, 88, { align: 'center', color: C.s });
+  drawText(ctx, t('name.top'), W / 2, 30, { scale: 3, align: 'center', color: C.q, shadow: C.r });
+  drawText(ctx, `${game.score} ${t('board.points')}  ·  ${game.meters} M`, W / 2, 62, { align: 'center' });
+  drawText(ctx, t('name.yourName'), W / 2, 88, { align: 'center', color: C.s });
 
   const n = game.nameEntry;
   const slotW = 36, x0 = W / 2 - slotW * 1.5;
@@ -368,16 +369,16 @@ function drawNameEntry(ctx, W, H, game, time) {
       if (Math.floor(time * 3) % 2) { ctx.fillStyle = C.a; ctx.fillRect(R(cx - 12), 154, 24, 2); }
     }
   });
-  drawText(ctx, '↑ ↓ ODER TIPPEN: BUCHSTABE', W / 2, 190, { align: 'center', color: C.s });
-  drawText(ctx, 'LEERTASTE / ENTER: WEITER', W / 2, 202, { align: 'center', color: C.s });
+  drawText(ctx, t('name.hint1'), W / 2, 190, { align: 'center', color: C.s });
+  drawText(ctx, t('name.hint2'), W / 2, 202, { align: 'center', color: C.s });
 }
 
 function drawBoard(ctx, W, H, game, time) {
   dim(ctx, W, H, 0.85);
-  drawText(ctx, 'RANGLISTE', W / 2, 16, { scale: 2, align: 'center', color: C.q, shadow: C.r });
+  drawText(ctx, t('board.title'), W / 2, 16, { scale: 2, align: 'center', color: C.q, shadow: C.r });
   drawLeaderboard(ctx, W, game.leaderboard, game.boardRank, time, 42);
   if (game.boardTimer > 0.4 && Math.floor(time * 2) % 2 === 0) {
-    drawText(ctx, game.boardFromTitle ? 'LEERTASTE: ZURÜCK' : 'LEERTASTE: NOCHMAL!', W / 2, H - 18, { align: 'center', color: C.a });
+    drawText(ctx, t(game.boardFromTitle ? 'board.back' : 'board.again'), W / 2, H - 18, { align: 'center', color: C.a });
   }
 }
 
@@ -399,7 +400,7 @@ function drawMenuScreen(ctx, W, H, game, title, time) {
   dim(ctx, W, H, 0.75);
   drawText(ctx, title, W / 2, game.menu.top - 44, { scale: 3, align: 'center', color: C.q, shadow: C.r });
   drawMenu(ctx, W, game, time);
-  drawText(ctx, '↑ ↓ WÄHLEN  ·  LEERTASTE OK  ·  ESC ZURÜCK', W / 2, H - 16, { align: 'center', color: C.m });
+  drawText(ctx, t('menu.hint'), W / 2, H - 16, { align: 'center', color: C.m });
 }
 
 function drawTitle(ctx, W, H, game, time) {
@@ -409,22 +410,22 @@ function drawTitle(ctx, W, H, game, time) {
   drawText(ctx, 'RUMP', W / 2 - 16, 36 + bob, { scale: 5, align: 'right', color: C.w, shadow: C.r });
   drawText(ctx, '&', W / 2, 44 + bob, { scale: 3, align: 'center', color: C.q, shadow: C.o });
   drawText(ctx, 'JUN', W / 2 + 16, 36 + bob, { scale: 5, color: C.w, shadow: C.r });
-  drawText(ctx, 'DAS ENDLOSE PIXEL-ABENTEUER', W / 2, 88, { align: 'center', color: C.a });
+  drawText(ctx, t('title.tagline'), W / 2, 88, { align: 'center', color: C.a });
   // kleiner Held, der vor dem Logo läuft
   drawSprite(ctx, 'player', 'run', time, W / 2 - 8, 110);
-  drawText(ctx, 'REKORD ' + game.best + (game.tempo.points > 1 ? `  ·  TEMPO ${game.tempo.name} ×${game.tempo.points}` : ''),
+  drawText(ctx, t('hud.best') + ' ' + game.best + (game.tempo.points > 1 ? `  ·  ${t('set.tempo')} ${game.tempoName} ×${game.tempo.points}` : ''),
     W / 2, 132, { align: 'center', color: C.y });
 
   drawMenu(ctx, W, game, time);
-  drawText(ctx, '↑ ↓ WÄHLEN  ·  LEERTASTE / ANTIPPEN: OK', W / 2, H - 16, { align: 'center', color: C.s, shadow: C.k });
+  drawText(ctx, t('title.hint'), W / 2, H - 16, { align: 'center', color: C.s, shadow: C.k });
 }
 
 export function drawLeaderboard(ctx, W, entries, highlight, time, top) {
   const x0 = W / 2 - 130;
   drawText(ctx, '#', x0, top, { color: C.m });
-  drawText(ctx, 'NAME', x0 + 24, top, { color: C.m });
-  drawText(ctx, 'METER', x0 + 150, top, { color: C.m, align: 'right' });
-  drawText(ctx, 'PUNKTE', x0 + 260, top, { color: C.m, align: 'right' });
+  drawText(ctx, t('board.name'), x0 + 24, top, { color: C.m });
+  drawText(ctx, t('board.meters'), x0 + 150, top, { color: C.m, align: 'right' });
+  drawText(ctx, t('board.points'), x0 + 260, top, { color: C.m, align: 'right' });
   for (let i = 0; i < 10; i++) {
     const e = entries[i];
     const y = top + 14 + i * 16;

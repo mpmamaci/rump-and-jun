@@ -34,10 +34,10 @@
     <!-- Touch-Steuerung rechts: Vollbild, Pause, Springen -->
     <div class="touch-pad touch-pad--right" aria-hidden="true">
       <div class="touch-small">
-        <button class="touch-btn touch-btn--small touch-btn--fullscreen" id="btn-fullscreen" title="Vollbild">
+        <button class="touch-btn touch-btn--small touch-btn--fullscreen" id="btn-fullscreen" title="Vollbild" data-i18n-title="html.btnFullscreen">
           <svg viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg>
         </button>
-        <button class="touch-btn touch-btn--small touch-btn--pause" data-key="Escape" title="Pause">
+        <button class="touch-btn touch-btn--small touch-btn--pause" data-key="Escape" title="Pause" data-i18n-title="html.btnPause">
           <svg viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></svg>
         </button>
       </div>
@@ -46,27 +46,27 @@
       </button>
     </div>
 
-    <div class="rotate-hint">↻ Für die beste Ansicht das Handy ins Querformat drehen</div>
+    <div class="rotate-hint" data-i18n="html.rotate">↻ Für die beste Ansicht das Handy ins Querformat drehen</div>
 
     <footer class="controls">
-      <span class="controls__item"><kbd>←</kbd><kbd>→</kbd> laufen</span>
-      <span class="controls__item"><kbd>Leertaste</kbd> springen <small>(halten = höher)</small></span>
-      <span class="controls__item"><kbd>Esc</kbd> Pause</span>
-      <span class="controls__item"><kbd>F</kbd> Vollbild</span>
-      <span class="controls__item"><kbd>M</kbd> Ton</span>
+      <span class="controls__item"><kbd>←</kbd><kbd>→</kbd> <span data-i18n="html.run">laufen</span></span>
+      <span class="controls__item"><kbd data-i18n="html.space">Leertaste</kbd> <span data-i18n="html.jump">springen</span> <small data-i18n="html.hold">(halten = höher)</small></span>
+      <span class="controls__item"><kbd>Esc</kbd> <span data-i18n="html.pause">Pause</span></span>
+      <span class="controls__item"><kbd>F</kbd> <span data-i18n="html.fullscreen">Vollbild</span></span>
+      <span class="controls__item"><kbd>M</kbd> <span data-i18n="html.sound">Ton</span></span>
     </footer>
   </main>
 
   <!-- Hinweis, wenn der Browser kein Vollbild erlaubt (iPhone) -->
   <dialog class="hint-dialog" id="fullscreen-hint">
-    <h2>Vollbild auf dem iPhone</h2>
-    <p>Safari erlaubt Webseiten auf dem iPhone kein Vollbild. So geht es trotzdem:</p>
+    <h2 data-i18n="html.fsTitle">Vollbild auf dem iPhone</h2>
+    <p data-i18n="html.fsText">Safari erlaubt Webseiten auf dem iPhone kein Vollbild. So geht es trotzdem:</p>
     <ol>
-      <li>Unten auf <b>Teilen</b> tippen (Quadrat mit Pfeil nach oben)</li>
-      <li><b>„Zum Home-Bildschirm“</b> wählen</li>
-      <li>Das Spiel über das neue Symbol starten, dann läuft es ohne Browserleisten</li>
+      <li data-i18n-html="html.fsStep1">Unten auf <b>Teilen</b> tippen (Quadrat mit Pfeil nach oben)</li>
+      <li data-i18n-html="html.fsStep2"><b>„Zum Home-Bildschirm“</b> wählen</li>
+      <li data-i18n-html="html.fsStep3">Das Spiel über das neue Symbol starten, dann läuft es ohne Browserleisten</li>
     </ol>
-    <form method="dialog"><button class="hint-dialog__ok">Alles klar</button></form>
+    <form method="dialog"><button class="hint-dialog__ok" data-i18n="html.fsOk">Alles klar</button></form>
   </dialog>
 
   <script type="module" src="src/main.js"></script>
