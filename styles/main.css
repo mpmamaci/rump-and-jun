@@ -1,0 +1,82 @@
+:root {
+  --bg: #12141f;
+  --bg-glow: #2a2f4a;
+  --text: #f2f4ff;
+  --muted: #9aa0c3;
+  --accent: #e84a5f;
+  --gold: #ffd23f;
+  --frame: #2b3050;
+  --radius: 14px;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; height: 100%; }
+
+body {
+  background: radial-gradient(ellipse at top, var(--bg-glow), var(--bg) 70%);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.app {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 24px 16px;
+}
+
+.logo {
+  margin: 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(18px, 4vw, 32px);
+  letter-spacing: 2px;
+  color: var(--text);
+  text-shadow: 3px 3px 0 var(--accent);
+}
+.logo__amp { color: var(--gold); text-shadow: 3px 3px 0 #b8860b; }
+
+.game-frame {
+  padding: 8px;
+  background: var(--frame);
+  border-radius: calc(var(--radius) + 8px);
+  box-shadow: 0 20px 60px #000a, inset 0 0 0 2px #ffffff10;
+  max-width: 100%;
+}
+
+canvas {
+  display: block;
+  width: min(960px, calc(100vw - 48px));
+  height: auto;
+  max-height: 72vh;
+  aspect-ratio: 960 / 520;
+  border-radius: var(--radius);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 24px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.controls__item { display: inline-flex; align-items: center; gap: 6px; }
+.controls small { opacity: .7; }
+
+kbd {
+  display: inline-block;
+  min-width: 26px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #23273f;
+  border: 1px solid #3a4066;
+  border-bottom-width: 3px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 12px;
+  text-align: center;
+}

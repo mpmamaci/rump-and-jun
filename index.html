@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jump and Run</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <main class="app">
+    <header class="app__header">
+      <h1 class="logo">Jump <span class="logo__amp">&amp;</span> Run</h1>
+    </header>
+
+    <div class="game-frame">
+      <canvas id="game" width="960" height="520"></canvas>
+    </div>
+
+    <footer class="controls">
+      <span class="controls__item"><kbd>←</kbd><kbd>→</kbd> laufen</span>
+      <span class="controls__item"><kbd>Leertaste</kbd> springen <small>(halten = höher)</small></span>
+      <span class="controls__item"><kbd>R</kbd> Neustart</span>
+    </footer>
+  </main>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
