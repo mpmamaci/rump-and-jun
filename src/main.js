@@ -19,8 +19,7 @@ await Promise.all([loadSprites(), loadFont()]);
 const game = new Game(VIEW_WIDTH, VIEW_HEIGHT);
 
 initInput({
-  onJump: () => game.jump(),
-  onRestart: () => game.restart(),
+  onKeyDown: (code, key, repeat) => game.handleKey(code, key, repeat),
 });
 
 // Zum Debuggen in der Browser-Konsole: window.game

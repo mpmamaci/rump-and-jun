@@ -13,16 +13,27 @@ import { updatePlatform } from './entities/platform.js';
 import { puff, updateParticles } from './particles.js';
 import { overlap } from './physics.js';
 import { loadBest, saveBest } from './storage/best.js';
+import { LocalStore, qualifies } from './storage/leaderboard.js';
+import { JUMP_KEYS } from './input.js';
+
+const NAME_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
 // Hält den kompletten Spielzustand
 //   'ready' – Spieler steht am Start, Scroll wartet auf die erste Eingabe
 //   'run'   – Auto-Scroll läuft
-//   'dead'  – kurzer Moment nach dem Tod, dann automatisch Neustart
+//   'dead'  – kurzer Moment nach dem Tod
+//   'name'  – Top-10-Platz geschafft: drei Buchstaben eingeben
+//   'board' – Rangliste anzeigen
+// Ohne Top-10-Platz geht es nach 'dead' sofort wieder zu 'ready'.
 export class Game {
-  constructor(viewWidth, viewHeight) {
+  constructor(viewWidth, viewHeight, store = new LocalStore()) {
     this.viewWidth = viewWidth;
     this.viewHeight = viewHeight;
     this.best = loadBest();
+    this.store = store;
+    this.leaderboard = [];
+    this.lastName = 'AAA';
+    this.store.load().then(list => { this.leaderboard = list; });
     this.restart();
   }
 
@@ -38,7 +49,9 @@ export class Game {
     this.scrollSpeed = scrollSpeedAt(0);
     this.distance = 0;
     this.coins = 0;
-    this.stomps = 0;
+    this.stompPoints = 0;
+    this.combo = 0;
+    this.bestCombo = 0;
     this.effects = { doublejump: 0, shield: false, slowmo: 0 };
     this.popups = [];   // kurze Texte in der Welt, z. B. "SCHILD!"
     ensureGenerated(this.world, Math.ceil(this.viewWidth / TILE) + GENERATE_AHEAD);
@@ -46,10 +59,56 @@ export class Game {
 
   get meters() { return Math.floor(this.distance / TILE); }
   get tier() { return tierAt(this.meters); }
-  get score() { return this.meters + this.coins * POINTS_COIN + this.stomps * POINTS_STOMP; }
+  get score() { return this.meters + this.coins * POINTS_COIN + this.stompPoints; }
 
   jump() {
-    if (this.state !== 'dead') this.world.player.jumpBuffer = JUMP_BUFFER;
+    if (this.state === 'ready' || this.state === 'run') this.world.player.jumpBuffer = JUMP_BUFFER;
+  }
+
+  // Tasten für Menüs; gibt true zurück, wenn die Taste verbraucht wurde
+  handleKey(code, key, repeat) {
+    if (this.state === 'name') return this.handleNameKey(code, key, repeat);
+    if (this.state === 'board') {
+      if (!repeat && (JUMP_KEYS.includes(code) || code === 'Enter' || code === 'KeyR') && this.boardTimer > 0.4) this.restart();
+      return true;
+    }
+    if (code === 'KeyR' && !repeat) { this.restart(); return true; }
+    if (JUMP_KEYS.includes(code)) { if (!repeat) this.jump(); return true; }
+    return false;
+  }
+
+  handleNameKey(code, key, repeat) {
+    const n = this.nameEntry;
+    const cycle = d => {
+      const i = NAME_CHARS.indexOf(n.chars[n.slot]);
+      n.chars[n.slot] = NAME_CHARS[(i + d + NAME_CHARS.length) % NAME_CHARS.length];
+    };
+    if (key.length === 1 && NAME_CHARS.includes(key.toUpperCase())) {
+      // Buchstaben direkt tippen (hat Vorrang – sonst wäre "A" gleichzeitig "links")
+      n.chars[n.slot] = key.toUpperCase();
+      if (n.slot < 2) n.slot++;
+    } else if (code === 'ArrowUp' || code === 'ArrowRight') cycle(1);
+    else if (code === 'ArrowDown' || code === 'ArrowLeft') cycle(-1);
+    else if (code === 'Backspace') n.slot = Math.max(0, n.slot - 1);
+    else if (!repeat && (code === 'Space' || code === 'Enter')) {
+      if (n.slot < 2) n.slot++;
+      else this.submitName();
+    }
+    return true;
+  }
+
+  async submitName() {
+    const name = this.nameEntry.chars.join('');
+    this.lastName = name;
+    const entry = {
+      name, score: this.score, meters: this.meters, coins: this.coins,
+      combo: this.bestCombo, seed: this.seed, date: new Date().toISOString(),
+    };
+    this.state = 'board';
+    this.boardTimer = 0;
+    const { entries, rank } = await this.store.submit(entry);
+    this.leaderboard = entries;
+    this.boardRank = rank;
   }
 
   // Zeitlupe verlangsamt alles außer dem Spieler
@@ -63,9 +122,16 @@ export class Game {
     for (const pop of this.popups) { pop.t += dt; pop.y -= 18 * dt; }
     this.popups = this.popups.filter(pop => pop.t < 1.2);
 
+    if (this.state === 'name') return;
+    if (this.state === 'board') { this.boardTimer += dt; return; }
     if (this.state === 'dead') {
       this.deadTimer += dt;
-      if (this.deadTimer >= DEATH_PAUSE) this.restart();
+      if (this.deadTimer >= DEATH_PAUSE) {
+        if (qualifies(this.leaderboard, this.score)) {
+          this.state = 'name';
+          this.nameEntry = { chars: [...this.lastName], slot: 0 };
+        } else this.restart();
+      }
       return;
     }
     if (this.state === 'ready' && (moveAxis() !== 0 || p.jumpBuffer > 0)) this.state = 'run';
@@ -80,6 +146,7 @@ export class Game {
     for (const pl of w.platforms) updatePlatform(pl, wdt);
     updatePlayer(p, this, dt);
     for (const e of w.enemies) updateEnemy(e, this, wdt);
+    if (p.onGround) this.combo = 0;  // Kombo endet, sobald man wieder Boden berührt
     updateCrumbling(w, dt, (c, r) => puff(w.particles, c * TILE + 8, r * TILE + 8, 8, '#a0703a'));
     if (this.state === 'dead') return;
 
@@ -113,7 +180,15 @@ export class Game {
     pruneBehind(w, firstCol - 2);
   }
 
-  stomp() { this.stomps++; }
+  // Gegner besiegt: jeder weitere Gegner ohne Bodenkontakt zählt mehr
+  stomp(e) {
+    this.combo++;
+    this.bestCombo = Math.max(this.bestCombo, this.combo);
+    const pts = POINTS_STOMP * this.combo;
+    this.stompPoints += pts;
+    this.popup(this.combo > 1 ? `+${pts} ×${this.combo}` : `+${pts}`, e.x + e.w / 2, e.y - 6,
+      this.combo > 1 ? '#ffcd75' : '#f4f4f4');
+  }
 
   onJump() {}
 

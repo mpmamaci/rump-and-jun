@@ -41,6 +41,8 @@ export function draw(ctx, game) {
   drawHud(ctx, game, W);
   if (game.state === 'ready') drawReady(ctx, W, H, time);
   if (game.state === 'dead') drawDead(ctx, W, H, game);
+  if (game.state === 'name') drawNameEntry(ctx, W, H, game, time);
+  if (game.state === 'board') drawBoard(ctx, W, H, game, time);
 }
 
 // ---------------- Hintergrund ----------------
@@ -222,6 +224,7 @@ function drawHud(ctx, game, W) {
   panel(ctx, 6, 6, 92, 30);
   drawText(ctx, game.meters + ' M', 11, 10, { scale: 2, shadow: C.k });
   drawText(ctx, 'PUNKTE ' + game.score, 11, 27, { color: C.q });
+  if (game.combo > 1) drawText(ctx, '×' + game.combo, 92, 10, { scale: 2, align: 'right', color: C.o, shadow: C.k });
 
   // aktive Power-ups mit Restzeit-Balken
   let ix = 104;
@@ -256,4 +259,60 @@ function drawDead(ctx, W, H, game) {
   drawText(ctx, 'PUNKTE ' + game.score, W / 2, H / 2 + 4, { scale: 2, align: 'center', color: C.q });
   drawText(ctx, game.newRecord ? 'NEUER REKORD!' : 'REKORD ' + game.best, W / 2, H / 2 + 24,
     { align: 'center', color: game.newRecord ? C.l : C.w });
+  const extra = `MÜNZEN ${game.coins}` + (game.bestCombo > 1 ? `  ·  BESTE KOMBO ×${game.bestCombo}` : '');
+  drawText(ctx, extra, W / 2, H / 2 + 38, { align: 'center', color: C.s });
+}
+
+function dim(ctx, W, H, a = 0.8) {
+  ctx.fillStyle = C.k; ctx.globalAlpha = a; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1;
+}
+
+function drawNameEntry(ctx, W, H, game, time) {
+  dim(ctx, W, H);
+  drawText(ctx, 'TOP 10!', W / 2, 30, { scale: 3, align: 'center', color: C.q, shadow: C.r });
+  drawText(ctx, `${game.score} PUNKTE  ·  ${game.meters} M`, W / 2, 62, { align: 'center' });
+  drawText(ctx, 'DEIN NAME:', W / 2, 88, { align: 'center', color: C.s });
+
+  const n = game.nameEntry;
+  const slotW = 36, x0 = W / 2 - slotW * 1.5;
+  n.chars.forEach((ch, i) => {
+    const cx = x0 + i * slotW + slotW / 2;
+    const active = i === n.slot;
+    drawText(ctx, ch, cx, 112, { scale: 4, align: 'center', color: active ? C.w : C.m, shadow: C.k });
+    if (active) {
+      drawText(ctx, '↑', cx, 100, { align: 'center', color: C.a });
+      drawText(ctx, '↓', cx, 144, { align: 'center', color: C.a });
+      if (Math.floor(time * 3) % 2) { ctx.fillStyle = C.a; ctx.fillRect(R(cx - 12), 154, 24, 2); }
+    }
+  });
+  drawText(ctx, '↑ ↓ ODER TIPPEN: BUCHSTABE', W / 2, 190, { align: 'center', color: C.s });
+  drawText(ctx, 'LEERTASTE / ENTER: WEITER', W / 2, 202, { align: 'center', color: C.s });
+}
+
+function drawBoard(ctx, W, H, game, time) {
+  dim(ctx, W, H, 0.85);
+  drawText(ctx, 'RANGLISTE', W / 2, 16, { scale: 2, align: 'center', color: C.q, shadow: C.r });
+  drawLeaderboard(ctx, W, game.leaderboard, game.boardRank, time, 42);
+  if (game.boardTimer > 0.4 && Math.floor(time * 2) % 2 === 0) {
+    drawText(ctx, 'LEERTASTE: NOCHMAL!', W / 2, H - 18, { align: 'center', color: C.a });
+  }
+}
+
+export function drawLeaderboard(ctx, W, entries, highlight, time, top) {
+  const x0 = W / 2 - 130;
+  drawText(ctx, '#', x0, top, { color: C.m });
+  drawText(ctx, 'NAME', x0 + 24, top, { color: C.m });
+  drawText(ctx, 'METER', x0 + 150, top, { color: C.m, align: 'right' });
+  drawText(ctx, 'PUNKTE', x0 + 260, top, { color: C.m, align: 'right' });
+  for (let i = 0; i < 10; i++) {
+    const e = entries[i];
+    const y = top + 14 + i * 16;
+    const hl = i === highlight;
+    if (hl) { ctx.fillStyle = C.r; ctx.globalAlpha = 0.5 + Math.sin(time * 6) * 0.2; ctx.fillRect(x0 - 6, y - 4, 272, 15); ctx.globalAlpha = 1; }
+    const col = hl ? C.w : i === 0 ? C.q : C.s;
+    drawText(ctx, String(i + 1), x0, y, { color: col });
+    drawText(ctx, e ? e.name : '---', x0 + 24, y, { color: col, scale: 1 });
+    drawText(ctx, e ? String(e.meters) : '', x0 + 150, y, { color: col, align: 'right' });
+    drawText(ctx, e ? String(e.score) : '', x0 + 260, y, { color: col, align: 'right' });
+  }
 }
