@@ -1,3 +1,7 @@
 {
-  "skins": {}
+  "skins": {
+    "test1": [
+      "player"
+    ]
+  }
 }
